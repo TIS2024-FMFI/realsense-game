@@ -15,11 +15,11 @@ const config = {
             debug: false
         }
     },
-    // scene: {
-    //     preload: preload,
-    //     create: create
-    // }// Add the language scene first
-    scene : [LanguageScene, MenuScene],
+    scene: {
+        preload: preload,
+        create: create
+    }// Add the language scene first
+    // scene : [LanguageScene, MenuScene],
 };
 
 // Initialize Phaser
