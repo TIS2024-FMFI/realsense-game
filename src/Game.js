@@ -27,7 +27,7 @@ const game = new Phaser.Game(config);
 
 function preload() {
     this.load.image('binRed', 'images/red.png');
-    this.load.image('binBlue', 'images/blue.png');
+    this.load.image('binBlue', 'images/ble.png');
     this.load.image('binBlack', 'images/black.png');
     this.load.image('binGreen', 'images/green.png');
     this.load.image('binYellow', 'images/yellow.png');
