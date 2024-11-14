@@ -1,8 +1,9 @@
 // Main.js
 import { Container } from "./Container.js";
 import Room from "./Room.js";
-import { MenuScene } from './MenuScene.js';
-import { LanguageScene } from './LanguageScene.js';
+import { PlayerScene } from './ConfigScenes/PlayerScene.js';
+import { LanguageScene } from './ConfigScenes/LanguageScene.js';
+import { LabelScene } from './ConfigScenes/LabelScene.js';
 
 const config = {
     type: Phaser.AUTO,
@@ -15,11 +16,11 @@ const config = {
             debug: false
         }
     },
-    scene: {
-        preload: preload,
-        create: create
-    }// Add the language scene first
-    // scene : [LanguageScene, MenuScene],
+    // scene: {
+    //     preload: preload,
+    //     create: create
+    // }// Add the language scene first
+     scene : [LanguageScene, PlayerScene, LabelScene],
 };
 
 // Initialize Phaser
