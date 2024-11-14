@@ -1,6 +1,8 @@
 // src/Config.js
 export const CONTAINER_WIDTH = 0.3;  // Set the desired global width
 export const CONTAINER_HEIGHT = 0.6; // Set the desired global height
+export const TARGET_WIDTH = 0.3;  // Set the desired global width
+export const TARGET_HEIGHT = 0.6; // Set the desired global height
 export const LANGUAGES = {
     sk: {
         language: "Slovenský jazyk",
