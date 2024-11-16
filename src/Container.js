@@ -34,7 +34,7 @@ export class Container {
 
         // Set size relative to room size
         //this.binImage.setDisplaySize(width * CONTAINER_WIDTH, height * CONTAINER_HEIGHT); // Width and height based on room size
-        this.binImage.setDisplaySize(width * CONTAINER_WIDTH * 0.4, height * CONTAINER_HEIGHT * 0.7);
+        this.binImage.setDisplaySize(width * CONTAINER_WIDTH, height * CONTAINER_HEIGHT);
 
         // Optionally set depth for the image to create a 3D effect
         this.binImage.setDepth(this.z);
