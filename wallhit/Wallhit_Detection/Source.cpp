@@ -11,6 +11,8 @@
 #include <vector>
 #include "ConfigReader.h"
 #include "InputHandler.h"
+#include "KeyboardInputHandler.h"
+#include "Math.h"
 #include "Geometry.h"
 #include "..\Wallhit_Calibration\Operations.h"
 #include <chrono>
@@ -161,6 +163,7 @@ int main(int argc, char * argv[]) try
 	if (!configReader.ReadConfigFile()) return 1;
 
 	CInputHandler inputHandler(configReader.GetResolutionX(), configReader.GetResolutionY());
+	CKeyboardInputHandler keyboardInputHandler(configReader.GetResolutionX(), configReader.GetResolutionY());
 
 	MIN_DEPTH = configReader.GetMinimalDepth();
 	MAX_DEPTH = configReader.GetMaximalDepth();
@@ -491,10 +494,35 @@ int main(int argc, char * argv[]) try
 					if (!wall.HeadingTowardsTheWall(trajectory)) continue;
 
 					GetLastNPointsOfTrajectory(trajectory, lastNPointsOfTrajectory, numberOfTrajectoryPointsToFit);
+					//START
+					// I want to extract speed from lastNPointsOfTrajectory
+					float speed = 0.f;
+					float a = 0.f, b = 0.f, c = 0.f;
+					std::vector<cv::Point3f> points;
+					std::vector<double> coefficients;
+					double average;
+
+					if (lastNPointsOfTrajectory.size() >= 2) {
+						cv::Point3f lastPoint = lastNPointsOfTrajectory.back();
+						cv::Point3f preLastPoint = lastNPointsOfTrajectory[lastNPointsOfTrajectory.size() - 2];
+						speed = sqrt(pow(lastPoint.x - preLastPoint.x, 2) + pow(lastPoint.y - preLastPoint.y, 2) + pow(lastPoint.z - preLastPoint.z, 2));
+						//std::cout << "Speed: " << speed << std::endl;
+					}
+					// take first and last and middle point of trajectory and calculate the parabola
+					if (lastNPointsOfTrajectory.size() > 2) {
+						cv::Point3d p1 = lastNPointsOfTrajectory.back();
+						cv::Point3d p2 = lastNPointsOfTrajectory[lastNPointsOfTrajectory.size() / 2];
+						cv::Point3d p3 = lastNPointsOfTrajectory[0];
+						
+						points = { p1, p2, p3 };
+						std::vector<double> coefficients = solveParabola(points);
+						average = averageX(points);
+					}
+					//END
 
 					cv::fitLine(lastNPointsOfTrajectory, fittedLine, cv::DIST_L2, 0, 0.01, 0.01);  //TODO
 					cv::Vec3f wallPoint = wall.GetRayIntersection(cv::Vec3f(fittedLine[3], fittedLine[4], fittedLine[5]),
-						cv::Vec3f(fittedLine[0], fittedLine[1], fittedLine[2]));
+					cv::Vec3f(fittedLine[0], fittedLine[1], fittedLine[2]));
 
 					float imageXY[2];
 					float wallPointArr[3] = { wallPoint[0], wallPoint[1], wallPoint[2] };
@@ -504,7 +532,7 @@ int main(int argc, char * argv[]) try
 					cv::perspectiveTransform(screenXY, screenXY, perspectiveMat);	
 
 					//NOTE: control printout
-					std::cout << std::endl << "ID: " << it->first << " Traj points: " << it->second.trajectory.size() << " Click at: " << screenXY[0].x << " " << screenXY[0].y << std::endl;
+					//std::cout << std::endl << "ID: " << it->first << " Traj points: " << it->second.trajectory.size() << " Click at: " << screenXY[0].x << " " << screenXY[0].y << std::endl;
 
 					if (screenXY[0].x == 0 && screenXY[0].y == 0)	//something went wrong during line fitting, so lets use less accurate normal projection of last trajectory point
 					{
@@ -519,9 +547,17 @@ int main(int argc, char * argv[]) try
 					{						
 						clickHistory.insert(it->first);						
 						if (bSendMouseClicks) inputHandler.SendClickAt(static_cast<int>(screenXY[0].x), static_cast<int>(screenXY[0].y));
+						//START
+						if (bSendMouseClicks) keyboardInputHandler.SendData(screenXY[0].x, screenXY[0].y,
+							speed, coefficients[0], coefficients[1], coefficients[2], average);
+
+						//if (speed) std::cout << "Speed: " << speed << std::endl; //NOTE: control printout, send data to handler
+						//if (coefficients.size() && average) std::cout << "Parabola: " << coefficients[0] << " " << coefficients[1] 
+						//	<< " " << coefficients[2] << " " << average << std::endl;
+						//END
 					}
 					//NOTE: control printout
-					else
+					/*else
 					{
 						std::cout << "Click not sent, out of bounds" << std::endl;
 						std::cout << "POINTS: " << std::endl;
@@ -529,7 +565,7 @@ int main(int argc, char * argv[]) try
 						{
 							std::cout << it->second.trajectory[i].x << " " << it->second.trajectory[i].y << " " << it->second.trajectory[i].z << std::endl;
 						}						
-					}
+					}*/
 				}
 			}
 		}		
