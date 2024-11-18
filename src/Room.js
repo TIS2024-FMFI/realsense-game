@@ -20,11 +20,15 @@ export class Room {
 
         // Listen for mouse click events
         this.scene.input.on('pointerdown', (pointer) => this.handleMouseClick(pointer));
+
+        // Ball instance to be created on mouse click
+        this.ball = null;
     }
 
     preload() {
         // Load the background image for the back wall
         this.scene.load.image('backWall', 'images/background.png'); // Update with your image path
+        this.scene.load.image('ball', 'images/ball.jpg');
     }
 
     drawRoom() {
@@ -60,9 +64,16 @@ export class Room {
         const targetX = pointer.x;
         const targetY = pointer.y;
 
-        const ballSize = 100;
-        // Create a new Ball that starts in front of the viewer and moves to the clicked position
-        new Ball(this.scene, targetX, targetY, ballSize);
+        // If there's an existing ball, reset it before creating a new one
+        if (this.ball) {
+            this.ball.reset();
+        }
+
+        // Create a new Ball and store the instance
+        this.ball = new Ball(this.scene, targetX, targetY, 'ball');
+
+        // Launch the ball at a specified angle and speed
+        this.ball.launch(45, 500); // Example launch at 45 degrees with speed 500
     }
 }
 

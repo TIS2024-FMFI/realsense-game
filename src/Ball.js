@@ -1,59 +1,51 @@
-// Ball.js
-
 export class Ball {
-    constructor(scene, targetX, targetY, size = 20) { // Added size parameter with a default value
+    constructor(scene, x, y, imageKey) {
         this.scene = scene;
-
-        // Set the starting position to be in front of the viewer
-        this.startX = targetX; // Target X position where the user clicked
-        this.startY = targetY; // Target Y position where the user clicked
-        this.startZ = 500; // Starting Z position (in front of the viewer)
-
-        // Create a yellow ball at the starting position
-        this.ball = this.scene.add.circle(this.startX, this.startY, size, 0xFFFF00); // Use the size parameter
-
-        this.animationDuration = 2000; // Duration of the animation in milliseconds
-
-        // Add shine effect
-        this.addShineEffect();
-
-        // Start the animation
-        this.animate();
+        this.sprite = scene.physics.add.sprite(x, y, imageKey);
+        this.sprite.setCollideWorldBounds(true);
+        this.sprite.setScale(1); // Initial scale
+        this.sprite.setBounce(0.8); // Bounce effect
+        this.sprite.setGravityY(300); // Apply gravity
+        this.isThrown = false; // Track if the ball has been thrown
     }
 
-    animate() {
-        // Move the ball towards the target position while shrinking
+    launch(angle, speed) {
+        if (this.isThrown) return; // Prevent multiple throws
+        this.isThrown = true;
+
+        // Convert angle to radians
+        let radians = Phaser.Math.DegToRad(angle);
+
+        // Calculate initial velocity
+        let velocityX = speed * Math.cos(radians);
+        let velocityY = -speed * Math.sin(radians); // Negative for upward direction
+
+        // Set velocity to the ball
+        this.sprite.setVelocity(velocityX, velocityY);
+
+        // Create a tween to shrink the ball for 3D illusion
         this.scene.tweens.add({
-            targets: this.ball,
-            x: this.startX, // Target X position
-            y: this.startY, // Target Y position
-            scaleX: 0.4, // Shrink horizontally
-            scaleY: 0.4, // Shrink vertically
-            duration: this.animationDuration,
-            ease: 'Power1', // Easing function for a smoother effect
-            onComplete: () => {
-                this.ball.destroy(); // Destroy the ball after the animation
-            }
+            targets: this.sprite,
+            scaleX: 0.2,
+            scaleY: 0.2,
+            duration: 2000,
+            ease: 'Linear'
         });
     }
 
-    addShineEffect() {
-        // Create a graphics object for the shine
-        const shine = this.scene.add.graphics();
+    reset() {
+        // Reset ball properties to prepare for another throw
+        this.sprite.setPosition(100, 500);
+        this.sprite.setScale(1);
+        this.sprite.setVelocity(0, 0);
+        this.isThrown = false;
+    }
 
-        // Draw a shine effect
-        shine.fillStyle(0xffffff, 0.5); // White shine color
-        shine.fillCircle(this.startX - 10, this.startY - 10, 10); // Position and size of the shine
-
-        // Fade out shine over time
-        this.scene.tweens.add({
-            targets: shine,
-            alpha: 0,
-            duration: 500, // Duration of shine effect
-            onComplete: () => {
-                shine.destroy(); // Remove shine after the animation
-            }
-        });
+    update() {
+        // Check if the ball is off-screen or has stopped moving
+        if (this.isThrown && (this.sprite.y > 600 || this.sprite.body.velocity.length() < 1)) {
+            this.reset();
+        }
     }
 }
 
