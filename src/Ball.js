@@ -11,6 +11,7 @@ export class Ball {
 
         // Create a yellow ball at the starting position
         this.ball = this.scene.add.circle(this.startX, this.startY, size, 0xFFFF00); // Use the size parameter
+        this.ball.setDepth(500);
 
         this.animationDuration = 2000; // Duration of the animation in milliseconds
 
