@@ -53,6 +53,7 @@ export class Target {
         this.targetImage.setPosition(projectedX, projectedY);
         this.targetImage.setDisplaySize(width * TARGET_WIDTH, height * TARGET_HEIGHT);
     }
+
 }
 
 export default Target;
