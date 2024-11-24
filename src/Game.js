@@ -26,7 +26,7 @@ const config = {
 };
 
 const game = new Phaser.Game(config);   // inicializácia Phaser
-let easyGame = true;        //level hry - na počet kontajnerov
+let easyGame = false;        //level hry - na počet kontajnerov
 let shouldDrawText = true; // Podmienka na vykreslenie textu
 let language_sk = false; // Podmienka na vykreslenie slovenského textu
 let language_en = true; // Podmienka na vykreslenie anglického textu textu
