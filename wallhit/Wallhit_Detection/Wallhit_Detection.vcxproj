@@ -23,6 +23,8 @@
     <ClCompile Include="CentroidTracker.cpp" />
     <ClCompile Include="ConfigReader.cpp" />
     <ClCompile Include="InputHandler.cpp" />
+    <ClCompile Include="KeyboardInputHandler.cpp" />
+    <ClCompile Include="Math.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Geometry.cpp" />
   </ItemGroup>
@@ -32,6 +34,8 @@
     <ClInclude Include="ConfigReader.h" />
     <ClInclude Include="InputHandler.h" />
     <ClInclude Include="Geometry.h" />
+    <ClInclude Include="KeyboardInputHandler.h" />
+    <ClInclude Include="Math.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

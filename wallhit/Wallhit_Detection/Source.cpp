@@ -482,12 +482,12 @@ int main(int argc, char * argv[]) try
 				if (previousIt->second.Position == it->second.Position &&
 					it->second.Disappeared == 1 &&
 					clickHistory.find(it->first) == clickHistory.end())
-				{				
+				{
 					cv::Vec6f fittedLine;
-					std::vector<cv::Point3f> &trajectory = trackedObjects.find(it->first)->second.trajectory;
+					std::vector<cv::Point3f>& trajectory = trackedObjects.find(it->first)->second.trajectory;
 					std::vector<cv::Point3f> lastNPointsOfTrajectory;
-					
-					if (trajectory.size() <= 2) continue;				
+
+					if (trajectory.size() <= 2) continue;
 
 					trajectory.pop_back();	//tracking position did not change, last trajectory point is on the wall not on the ball
 
@@ -496,17 +496,16 @@ int main(int argc, char * argv[]) try
 					GetLastNPointsOfTrajectory(trajectory, lastNPointsOfTrajectory, numberOfTrajectoryPointsToFit);
 					//START
 					// I want to extract speed from lastNPointsOfTrajectory
-					float speed = 0.f;
-					float a = 0.f, b = 0.f, c = 0.f;
+					double speed = 0.0;
+					//float a = 0.f, b = 0.f, c = 0.f;
 					std::vector<cv::Point3f> points;
-					std::vector<double> coefficients;
-					double average;
+					std::vector<double> coefficients = {0.0, 0.0, 0.0};
+					double average = 0.0;
 
 					if (lastNPointsOfTrajectory.size() >= 2) {
-						cv::Point3f lastPoint = lastNPointsOfTrajectory.back();
-						cv::Point3f preLastPoint = lastNPointsOfTrajectory[lastNPointsOfTrajectory.size() - 2];
-						speed = sqrt(pow(lastPoint.x - preLastPoint.x, 2) + pow(lastPoint.y - preLastPoint.y, 2) + pow(lastPoint.z - preLastPoint.z, 2));
-						//std::cout << "Speed: " << speed << std::endl;
+						speed = calculateSpeed(lastNPointsOfTrajectory);
+						average = calculateXChange(lastNPointsOfTrajectory);
+
 					}
 					// take first and last and middle point of trajectory and calculate the parabola
 					if (lastNPointsOfTrajectory.size() > 2) {
@@ -515,12 +514,11 @@ int main(int argc, char * argv[]) try
 						cv::Point3d p3 = lastNPointsOfTrajectory[0];
 						
 						points = { p1, p2, p3 };
-						std::vector<double> coefficients = solveParabola(points);
-						average = averageX(points);
+						coefficients = solveParabola(points);
 					}
 					//END
 
-					cv::fitLine(lastNPointsOfTrajectory, fittedLine, cv::DIST_L2, 0, 0.01, 0.01);  //TODO
+					cv::fitLine(lastNPointsOfTrajectory, fittedLine, cv::DIST_L2, 0, 0.01, 0.01);
 					cv::Vec3f wallPoint = wall.GetRayIntersection(cv::Vec3f(fittedLine[3], fittedLine[4], fittedLine[5]),
 					cv::Vec3f(fittedLine[0], fittedLine[1], fittedLine[2]));
 
@@ -546,14 +544,18 @@ int main(int argc, char * argv[]) try
 					if (screenXY[0].x >= 0 && screenXY[0].y >= 0 && screenXY[0].x <= resX && screenXY[0].y <= resY)
 					{						
 						clickHistory.insert(it->first);						
-						if (bSendMouseClicks) inputHandler.SendClickAt(static_cast<int>(screenXY[0].x), static_cast<int>(screenXY[0].y));
+						//if (bSendMouseClicks) inputHandler.SendClickAt(static_cast<int>(screenXY[0].x), static_cast<int>(screenXY[0].y));
 						//START
 						if (bSendMouseClicks) keyboardInputHandler.SendData(screenXY[0].x, screenXY[0].y,
-							speed, coefficients[0], coefficients[1], coefficients[2], average);
+							speed, coefficients[0], coefficients[1], coefficients[2], average);//TODO: fix if no data except x,y
+
+
+
 
 						//if (speed) std::cout << "Speed: " << speed << std::endl; //NOTE: control printout, send data to handler
-						//if (coefficients.size() && average) std::cout << "Parabola: " << coefficients[0] << " " << coefficients[1] 
+						//if (coefficients.size() && average) std::cout << "Parabola: " << coefficients[0] << " " << coefficients[1]
 						//	<< " " << coefficients[2] << " " << average << std::endl;
+
 						//END
 					}
 					//NOTE: control printout
