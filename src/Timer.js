@@ -73,11 +73,15 @@ export class Timer {
     reset(timeInSeconds) {
         this.timeLeft = timeInSeconds;
         this.timerText.setText(this.formatTime(this.timeLeft));
-        this.timerEvent.reset({
+        if (this.timerEvent) {
+            this.timerEvent.remove(false); // Odstránenie starej udalosti
+        }
+        this.timerEvent = this.scene.time.addEvent({
             delay: 1000,
             callback: this.updateTimer,
             callbackScope: this,
             loop: true
         });
     }
+
 }

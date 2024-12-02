@@ -26,8 +26,13 @@ const config = {
     // scene : [LanguageScene, MenuScene],
 };
 
+const time = 10;
 const game = new Phaser.Game(config);   // inicializácia Phaser
-let easyGame = true;        //level hry - na počet kontajnerov
+let easyGame = false;        //level hry - na počet kontajnerov
+let mediumGame = true;        //lever hry - na narocnost objektov
+if(!easyGame){
+    mediumGame = false;
+}
 let shouldDrawText = true; // Podmienka na vykreslenie textu
 let language_sk = true; // Podmienka na vykreslenie slovenského textu
 let language_en = false; // Podmienka na vykreslenie anglického textu textu
@@ -38,6 +43,7 @@ let greenScreen;
 let timer;
 let score;
 let powerBar;
+let waste;
 
 //načítanie potrebných obrázkov
 function preload() {
@@ -139,10 +145,10 @@ function create() {
     }
 
     //vytvorenie odpadu
-    const waste = new Waste(this, this.cameras.main.width / 2, this.cameras.main.height / 4, easyGame);
+    waste = new Waste(this, this.cameras.main.width / 2, this.cameras.main.height / 4, easyGame, mediumGame);
 
     // Vytvorenie časovača
-    timer = new Timer(this, 120, false, () => {
+    timer = new Timer(this, time, false, () => {
         createGreenScreen(this);
     });
 
@@ -181,7 +187,9 @@ function createGreenScreen(scene) {
         scene.cameras.main.height,
         0x00ff00
     );
-    greenScreen.setVisible(false);
+    console.log('som tu ');
+    greenScreen.setDepth(999);
+    greenScreen.setVisible(true);
     greenScreen.setInteractive();
     greenScreen.on('pointerdown', () => {
         resetGame(scene);
@@ -209,9 +217,24 @@ function drawText(scene, x, y, textContent) {
 
 //funkcia na resetovanie hry
 function resetGame(scene) {
-    greenScreen.setVisible(false);
-    timer.reset(120);
-    new Waste(scene);
+    if (greenScreen) {
+        greenScreen.setVisible(false);
+    }
+
+    // Resetovanie časovača
+    if (timer) {
+        timer.reset(time); // Reset existujúceho časovača
+    } else {
+        timer = new Timer(scene, time, false, () => {
+            createGreenScreen(scene); // Callback pri vypršaní časovača
+        });
+    }
+
+    waste.destroy();
+    waste = null;
+
+    // Vytvorenie nového odpadu
+    waste = new Waste(scene, scene.cameras.main.width / 2, scene.cameras.main.height / 4, easyGame, mediumGame);
 }
 
 // zmenň veľkosť hry, keď je zmenená veľkosť obrazovky

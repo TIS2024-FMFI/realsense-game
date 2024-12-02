@@ -25,6 +25,8 @@ const config = {
 };
 
 const game = new Phaser.Game(config);   // inicializácia Phaser
+const initialTime = 10;
+let hardObject = true;
 let shouldDrawText = false; // Podmienka na vykreslenie textu
 let language_sk = true;    // Podmienka na vykreslenie slovenského textu
 let language_en = false;     // Podmienka na vykreslenie anglického textu
@@ -35,6 +37,8 @@ let greenScreen;
 let timer;
 let scorePlayer1;
 let scorePlayer2;
+let waste_left;
+let waste_right;
 
 //načítanie potrebných obrázkov
 function preload() {
@@ -113,8 +117,8 @@ function create() {
     const room = new Room(this);        //vytvorenie miestnosti
     createMiddleLine(this);                     // vytvorenie stredovej oddeľovacej čiary
     //vytváranie odpadu
-    const waste_left = new Waste(this, this.cameras.main.width / 4, this.cameras.main.height / 4, true);
-    const waste_right = new Waste(this, 3*this.cameras.main.width / 4, this.cameras.main.height / 4, true);
+    waste_left = new Waste(this, this.cameras.main.width / 4, this.cameras.main.height / 4, true, hardObject);
+    waste_right = new Waste(this, 3*this.cameras.main.width / 4, this.cameras.main.height / 4, true, hardObject);
 
     const bins = ['binYellow', 'binBlue', 'binGreen', 'binRed'];
     const names_sk = ["Plast", "Papier", "Sklo", "Kov"];
@@ -130,7 +134,7 @@ function create() {
     }
 
     // Vytvorenie časovača
-    timer = new Timer(this, 120, true, () => {
+    timer = new Timer(this, initialTime, true, () => {
         createGreenScreen(this);
     });
 
@@ -217,12 +221,38 @@ function createGreenScreen(scene) {
     });
 }
 
-//Funkcia na reset hry po dokončení času
+//funkcia na resetovanie hry
 function resetGame(scene) {
-    greenScreen.setVisible(false);
-    timer.reset(120);
-    timer.initializeEvent();
+    // Skrytie zelenej obrazovky
+    if (greenScreen) {
+        greenScreen.setVisible(false);
+    }
+
+    // Resetovanie časovača
+    if (timer) {
+        timer.reset(initialTime); // Reset existujúceho časovača
+    } else {
+        timer = new Timer(scene, initialTime, true, () => {
+            createGreenScreen(scene); // Callback pri vypršaní časovača
+        });
+    }
+
+    // Zničenie starého odpadu laveho
+    waste_left.destroy();
+    waste_left = null;
+    console.log('som tu');
+
+    // Vytvorenie nového odpadu
+    waste_left = new Waste(scene, scene.cameras.main.width / 4, scene.cameras.main.height / 4, true, hardObject);
+
+    // Zničenie starého odpadu praveho
+    waste_right.destroy();
+    waste_right = null;
+
+    // Vytvorenie nového odpadu
+    waste_right = new Waste(scene, 3*scene.cameras.main.width / 4, scene.cameras.main.height / 4, true, hardObject);
 }
+
 
 //Funkcia na vykreslenie stredovej čiary
 function createMiddleLine(scene) {
