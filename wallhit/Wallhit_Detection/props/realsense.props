@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <!--debug suffix-->
+    <DebugSuffix Condition="'$(Configuration)'=='UnicodeDebug'">d</DebugSuffix>
+    <DebugSuffix Condition="'$(Configuration)'!='Debug'">
+    </DebugSuffix>
+    <!--platform-->
+    <ShortPlatform Condition="'$(Platform)' == 'Win32'">
+    </ShortPlatform>
+    <ShortPlatform Condition="'$(Platform)' == 'x64'">64</ShortPlatform>
+    <xPlatform Condition="'$(Platform)' == 'Win32'">x32</xPlatform>
+    <xPlatform Condition="'$(Platform)' == 'x64'">x64</xPlatform>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ExecutablePath>$(KVANT_DEPENDENCIES_DIR)\realsense\bin\$(xPlatform);$(ExecutablePath)</ExecutablePath>
+    <IncludePath>$(KVANT_DEPENDENCIES_DIR)\realsense\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(KVANT_DEPENDENCIES_DIR)\realsense\lib\$(xPlatform);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>realsense2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

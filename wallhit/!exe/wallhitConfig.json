@@ -1,0 +1,45 @@
+{
+    "AccelTolerance": 0.2,
+    "BL": [
+        -1.3389437198638916,
+        1.0340166091918945,
+        4.093000411987305
+    ],
+    "BOT_BAR": 10,
+    "BR": [
+        1.3134454488754272,
+        1.0451322793960571,
+        4.13700008392334
+    ],
+    "BallDiameter": 0.18000000715255737,
+    "ContourAreaThresholdMax": 2000.0,
+    "ContourAreaThresholdMin": 400.0,
+    "ContourBoundingBoxHeightMax": 200,
+    "ContourBoundingBoxWidthMax": 200,
+    "DisappearedFrameCount": 10,
+    "Exposure": 10000.0,
+    "LEFT_BAR": 10,
+    "MaximalDepth": 4.791,
+    "MinimalDepth": 0.0,
+    "NewObjectDistanceThreshold": 100,
+    "NumberOfTrajectoryPointsToFitFrom": 3,
+    "RIGHT_BAR": 10,
+    "RangeThresholdHigh": 255,
+    "RangeThresholdLow": 18,
+    "ResolutionX": 1920,
+    "ResolutionY": 1280,
+    "SendMouseClicks": true,
+    "ShowDebugWindows": false,
+    "ShowFPS": false,
+    "TL": [
+        -1.3017394542694092,
+        -0.6800332069396973,
+        3.1700000762939453
+    ],
+    "TOP_BAR": 10,
+    "TR": [
+        1.2969225645065308,
+        -0.7433189749717712,
+        3.3430001735687256
+    ]
+}
