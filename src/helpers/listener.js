@@ -1,26 +1,22 @@
 let buffer = "";
 
+const START_CHAR = '#';
+const END_CHAR = '*';
+
 document.addEventListener('keydown', (event) => {
     buffer += event.key;
 
-    if (buffer.includes("#") && buffer.includes("*")) {
-        const startIdx = buffer.indexOf("#");
-        const endIdx = buffer.indexOf("*", startIdx);
+    if (buffer.includes(START_CHAR) && buffer.includes(END_CHAR)) {
+        const startIdx = buffer.indexOf(START_CHAR);
+        const endIdx = buffer.indexOf(END_CHAR, startIdx);
 
         if (startIdx >= 0 && endIdx > startIdx) {
             const message = buffer.substring(startIdx + 1, endIdx);
 
-            try {   // Parse the message
-                const speedMatch = message.match(/S(\d+)/);
-                const vectorMatch = message.match(/V(\d+),(\d+)/);
+            try {
+                const parsedData = parseMessageData(message);
 
-                if (speedMatch && vectorMatch) {
-                    const speed = parseInt(speedMatch[1]);
-                    const vectorX = parseInt(vectorMatch[1]);
-                    const vectorY = parseInt(vectorMatch[2]);
-                    //NOTE: Here can be called the function to visualize the data
-                    handleMessageData(speed, vectorX, vectorY);
-                }
+                handleParsedData(parsedData);
             } catch (error) {
                 console.error("Error parsing message:", error);
             }
@@ -30,8 +26,23 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-function handleMessageData(speed, vectorX, vectorY) {
-    //Delete this action and add function or add function directly in the listener col 21
-    // Example
-    console.log(`Speed: ${speed}, Vector: [${vectorX}, ${vectorY}]`);
+function parseMessageData(message) {
+    const dataParts = message.split(',');
+
+    if (dataParts.length !== 7) {
+        throw new Error("Invalid message format");
+    }
+    const x = parseFloat(dataParts[0]);
+    const y = parseFloat(dataParts[1]);
+    const speed = parseFloat(dataParts[2]);
+    const a = parseFloat(dataParts[3]);
+    const b = parseFloat(dataParts[4]);
+    const c = parseFloat(dataParts[5]);
+    const avgX = parseFloat(dataParts[6]);
+
+    return { x, y, speed, a, b, c, avgX };
+}
+
+function handleParsedData(data) {
+    console.log("Parsed Data:", data);
 }
