@@ -33,7 +33,8 @@ export class Container {
         this.binImage = this.scene.add.image(projectedX, projectedY, this.imageKey);
 
         // Set size relative to room size
-        this.binImage.setDisplaySize(width * CONTAINER_WIDTH, height * CONTAINER_HEIGHT); // Width and height based on room size
+        //this.binImage.setDisplaySize(width * CONTAINER_WIDTH, height * CONTAINER_HEIGHT); // Width and height based on room size
+        this.binImage.setDisplaySize(width * CONTAINER_WIDTH, height * CONTAINER_HEIGHT);
 
         // Optionally set depth for the image to create a 3D effect
         this.binImage.setDepth(this.z);
