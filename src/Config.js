@@ -18,7 +18,10 @@ export const LANGUAGES = {
             orange: "XYZ"
         },
         score: "Skóre",
-        time: "Čas"
+        time: "Čas",
+        easy: "Ľahká",
+        medium: "Stredná",
+        hard: "Ťažká"
     },
     en: {
         language: "English",
@@ -36,7 +39,10 @@ export const LANGUAGES = {
             orange: "Orange",
         },
         score: "Skore",
-        time: "Time"
+        time: "Time",
+        easy: "Easy",
+        medium: "Medium",
+        hard: "Hard"
     }
 }
 export const textStyle = {

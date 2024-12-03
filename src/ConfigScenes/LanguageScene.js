@@ -3,6 +3,7 @@ import {LANGUAGES, textStyle} from '../Config.js';
 
 export class LanguageScene extends Phaser.Scene {
     constructor() {
+        //super()
         super({ key: 'LanguageScene' });
     }
 

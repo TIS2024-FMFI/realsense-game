@@ -4,12 +4,12 @@ import {LANGUAGES, textStyle} from '../Config.js';
 export class PlayerScene extends Phaser.Scene {
     constructor() {
         super({ key: 'PlayerScene' });
-        this.language = 'EN'; // Default language
+        this.language = 'en'; // Default language
     }
 
     init(data) {
         // Get the selected language from the data passed when transitioning
-        this.language = data.language || 'EN'; // Default to English if not set
+        this.language = data.language || 'en'; // Default to English if not set
     }
 
     preload() {
@@ -28,13 +28,13 @@ export class PlayerScene extends Phaser.Scene {
                 console.log("One player");
                 this.scene.start('LabelScene', {
                     language: this.language,
-                    players: "one"
+                    players: 1
                 }); // Pass language to MenuScene
             } else if (pointer.x >= halfWidth && pointer.x <= fullWidth) {
                 console.log("Two Players");
                 this.scene.start('LabelScene', {
                     language: this.language,
-                    players: "two"
+                    players: 2
                 }); // Pass language to MenuScene
             }
         });

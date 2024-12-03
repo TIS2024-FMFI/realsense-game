@@ -1,4 +1,4 @@
-// js/MenuScene.js
+// js/LabelScene.js
 import {LANGUAGES, textStyle} from '../Config.js';
 
 export class LabelScene extends Phaser.Scene {
@@ -9,7 +9,7 @@ export class LabelScene extends Phaser.Scene {
 
     init(data) {
         // Get the selected language from the data passed when transitioning
-        this.language = data.language || 'EN'; // Default to English if not set
+        this.language = data.language || 'en'; // Default to English if not set
         this.players = data.players;
     }
 
@@ -27,14 +27,14 @@ export class LabelScene extends Phaser.Scene {
         this.input.on('pointerdown', (pointer) => {
             if (pointer.x >= 0 && pointer.x <= halfWidth) {
                 console.log("With labels");
-                this.scene.start('LabelScene', {
+                this.scene.start('DifficultyScene', {
                     language: this.language,
                     players: this.players,
                     labels: true
                 }); // Pass language to MenuScene
             } else if (pointer.x >= halfWidth && pointer.x <= fullWidth) {
                 console.log("Without Labels");
-                this.scene.start('LabelScene', {
+                this.scene.start('DifficultyScene', {
                     language: this.language,
                     players: this.players,
                     labels: false

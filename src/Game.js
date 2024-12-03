@@ -4,6 +4,8 @@ import Room from "./Room.js";
 import { PlayerScene } from './ConfigScenes/PlayerScene.js';
 import { LanguageScene } from './ConfigScenes/LanguageScene.js';
 import { LabelScene } from './ConfigScenes/LabelScene.js';
+import {DifficultyScene} from "./ConfigScenes/DifficultyScene.js";
+// import {ConfigScene} from "./ConfigScenes/ConfigScene.js";
 
 const config = {
     type: Phaser.AUTO,
@@ -20,7 +22,9 @@ const config = {
     //     preload: preload,
     //     create: create
     // }// Add the language scene first
-     scene : [LanguageScene, PlayerScene, LabelScene],
+    scene : [LanguageScene, PlayerScene, LabelScene,DifficultyScene],
+    // scene: [ConfigScene],
+    // scene : [LanguageScene, PlayerScene, LabelScene],
 };
 
 // Initialize Phaser
