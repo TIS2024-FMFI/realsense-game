@@ -1,4 +1,3 @@
-// Room.js
 import Ball from './Ball.js'; // Import the Ball class
 
 export class Room {
@@ -21,14 +20,14 @@ export class Room {
         // Listen for mouse click events
         this.scene.input.on('pointerdown', (pointer) => this.handleMouseClick(pointer));
 
-        // Ball instance to be created on mouse click
-        this.ball = null;
+        // Array to store multiple ball instances
+        this.balls = [];
     }
 
     preload() {
         // Load the background image for the back wall
         this.scene.load.image('backWall', 'images/background.png'); // Update with your image path
-        this.scene.load.image('ball', 'images/ball.jpg');
+        this.scene.load.image('ball', 'images/ball2.png');
     }
 
     drawRoom() {
@@ -64,16 +63,24 @@ export class Room {
         const targetX = pointer.x;
         const targetY = pointer.y;
 
-        // If there's an existing ball, reset it before creating a new one
-        if (this.ball) {
-            this.ball.reset();
-        }
+        // Create a new Ball and store the instance in the balls array
+        const ball = new Ball(this.scene, targetX, targetY, 0, 'ball');
+        // TODO zmena velkosti lopticky a spead nie su kompatibilne
+        ball.moveAlongParabola(0.02, -2, 100, 0, 800, 1, 1);
 
-        // Create a new Ball and store the instance
-        this.ball = new Ball(this.scene, targetX, targetY, 'ball');
+        // Add the new ball to the balls array
+        this.balls.push(ball);
 
-        // Launch the ball at a specified angle and speed
-        this.ball.launch(45, 500); // Example launch at 45 degrees with speed 500
+        console.log(`Ball created at (${ball.x}, ${ball.y})`);
+    }
+
+    update() {
+        // Update each ball if it's moving
+        this.balls.forEach(ball => {
+            if (ball.moving) {
+                // You can add additional logic here to update the ball
+            }
+        });
     }
 }
 

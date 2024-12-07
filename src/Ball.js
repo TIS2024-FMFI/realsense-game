@@ -1,51 +1,103 @@
 export class Ball {
-    constructor(scene, x, y, imageKey) {
-        this.scene = scene;
-        this.sprite = scene.physics.add.sprite(x, y, imageKey);
-        this.sprite.setCollideWorldBounds(true);
-        this.sprite.setScale(1); // Initial scale
-        this.sprite.setBounce(0.8); // Bounce effect
-        this.sprite.setGravityY(300); // Apply gravity
-        this.isThrown = false; // Track if the ball has been thrown
+    constructor(scene, x, y, z, imageKey) {
+        this.scene = scene; // Reference to the Phaser scene
+        this.x = x;         // X-coordinate
+        this.y = y;         // Y-coordinate
+        this.z = z;         // Z-coordinate
+        this.imageKey = imageKey; // Key for the ball image
+        this.scale = 0.9;
+
+        this.sprite = null; // Placeholder for the ball sprite
+        this.moving = false; // Track if the ball is currently moving
+        this.preload();     // Load the ball image
+        this.create();      // Draw the ball at the initial position
     }
 
-    launch(angle, speed) {
-        if (this.isThrown) return; // Prevent multiple throws
-        this.isThrown = true;
+    preload() {
+        // Load the image if not already loaded
+        if (!this.scene.textures.exists(this.imageKey)) {
+            this.scene.load.image(this.imageKey, 'images/ball2.png');
+            this.scene.load.start(); // Trigger the preload to begin
+        }
+    }
 
-        // Convert angle to radians
-        let radians = Phaser.Math.DegToRad(angle);
+    create() {
+        // Draw the ball image at the specified (x, y) position
+        this.sprite = this.scene.add.image(this.x, this.y, this.imageKey);
+    }
 
-        // Calculate initial velocity
-        let velocityX = speed * Math.cos(radians);
-        let velocityY = -speed * Math.sin(radians); // Negative for upward direction
-
-        // Set velocity to the ball
-        this.sprite.setVelocity(velocityX, velocityY);
-
-        // Create a tween to shrink the ball for 3D illusion
-        this.scene.tweens.add({
-            targets: this.sprite,
-            scaleX: 0.2,
-            scaleY: 0.2,
-            duration: 2000,
-            ease: 'Linear'
-        });
+    setPosition(x, y) {
+        // Update the position of the ball
+        this.x = x;
+        this.y = y;
+        if (this.sprite) {
+            this.sprite.setPosition(x, y);
+        }
     }
 
     reset() {
-        // Reset ball properties to prepare for another throw
-        this.sprite.setPosition(100, 500);
-        this.sprite.setScale(1);
-        this.sprite.setVelocity(0, 0);
-        this.isThrown = false;
+        // Stop movement and destroy the ball
+        this.moving = false;
+        if (this.sprite) {
+            this.sprite.destroy();
+            this.sprite = null;
+        }
     }
 
-    update() {
-        // Check if the ball is off-screen or has stopped moving
-        if (this.isThrown && (this.sprite.y > 600 || this.sprite.body.velocity.length() < 1)) {
-            this.reset();
+    moveAlongParabola(a, b, c, startZ, endZ, step = 1, speed = 50) {
+        /**
+         * Moves the ball along the parabola y = a * z^2 + b * z + c
+         * in the z-y plane.
+         *
+         * @param {number} a - Parabola coefficient for z^2.
+         * @param {number} b - Parabola coefficient for z.
+         * @param {number} c - Constant coefficient.
+         * @param {number} startZ - Starting z position.
+         * @param {number} endZ - Ending z position.
+         * @param {number} step - Step size for z increments.
+         * @param {number} speed - Delay (in ms) between updates.
+         */
+
+        if (this.moving) {
+            return; // Prevent re-triggering movement while already moving
         }
+
+        this.moving = true; // Mark the ball as moving
+        let currentZ = startZ; // Independent z variable for this ball
+
+        const moveStep = () => {
+            if (!this.moving || (step > 0 && currentZ > endZ) || (step < 0 && currentZ < endZ)) {
+                // Stop moving when the target is reached or ball is reset
+                this.moving = false;
+
+                // Destroy the ball once it reaches its destination
+                if (this.sprite) {
+                    this.sprite.destroy();
+                    this.sprite = null;
+                }
+
+                return;
+            }
+
+            // Calculate the new y position based on the parabola equation
+            const y = a * currentZ ** 2 + b * currentZ + c;
+
+            // Shrink the ball progressively by reducing its scale
+            this.scale = this.scale * 0.98; // Prevent shrinking below 0.1
+
+            this.sprite.setScale(this.scale, this.scale); // Update the ball's scale
+            // Update the ball's position
+            this.setPosition(this.x, y);
+
+            // Increment z for the next step
+            currentZ += step;
+
+            // Schedule the next step
+            this.scene.time.delayedCall(speed, moveStep);
+        };
+
+        // Start the movement
+        moveStep();
     }
 }
 
