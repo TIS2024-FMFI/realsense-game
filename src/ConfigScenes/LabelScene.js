@@ -8,54 +8,67 @@ export class LabelScene extends Phaser.Scene {
     }
 
     init(data) {
-        // Get the selected language from the data passed when transitioning
-        this.language = data.language || 'en'; // Default to English if not set
-        this.players = data.players;
-    }
-
-    preload() {
-        // Load any assets if necessary
+        this.data = data;
     }
 
     create() {
-        // Create a graphics object
-        const {fullWidth, halfWidth, fullHeight} = this.initiateScreen();
+        this.initData()
+        this.initiateScreen();
 
-        this.add.text(halfWidth / 2, fullHeight / 2 - 20, `${LANGUAGES[this.language].labelsTrue}`, textStyle).setOrigin(0.5);
-        this.add.text(halfWidth + (halfWidth / 2), fullHeight / 2 - 20, `${LANGUAGES[this.language].labelsFalse}`,textStyle).setOrigin(0.5);
+    }
 
-        this.input.on('pointerdown', (pointer) => {
-            if (pointer.x >= 0 && pointer.x <= halfWidth) {
-                console.log("With labels");
-                this.scene.start('DifficultyScene', {
-                    language: this.language,
-                    players: this.players,
-                    labels: true
-                }); // Pass language to MenuScene
-            } else if (pointer.x >= halfWidth && pointer.x <= fullWidth) {
-                console.log("Without Labels");
-                this.scene.start('DifficultyScene', {
-                    language: this.language,
-                    players: this.players,
-                    labels: false
-                }); // Pass language to MenuScene
-            }
-        });
-
-        // You can add more functionality as needed, such as transitioning to the game.
+    initData(){
+        this.numberOfPanels = 2;
+        this.nextScene = 'DifficultyScene';
+        this.options = [
+            {labels: true},
+            {labels: false}
+        ]
+        this.optionTexts = [
+            `${LANGUAGES[this.data.language].labelsTrue}`,
+            `${LANGUAGES[this.data.language].labelsFalse}`
+        ]
     }
 
     initiateScreen() {
         const graphics = this.add.graphics();
-        const fullWidth = this.cameras.main.width;
-        const halfWidth = fullWidth / 2;
-        const fullHeight = this.cameras.main.height;
+        const width = this.cameras.main.width;
+        const height = this.cameras.main.height;
 
-        graphics.fillStyle(0x00ff00, 1); // Green for SK
-        graphics.fillRect(0, 0, halfWidth, fullHeight);
+        this.makePanels(this.numberOfPanels, graphics, width, height)
 
-        graphics.fillStyle(0xff0000, 1); // Red for EN
-        graphics.fillRect(halfWidth, 0, halfWidth, fullHeight);
-        return {fullWidth, halfWidth, fullHeight};
+        let panelWidth = width/this.numberOfPanels;
+
+        this.input.on('pointerdown', (pointer) => {
+            console.log(this.optionTexts[(pointer.x / panelWidth)|0]+" selected");
+            let newData = {...this.data,...this.options[(pointer.x / panelWidth)|0]}
+            this.scene.start(this.nextScene, newData);
+            console.log(newData);
+        });
+    }
+
+    color(count, index) {
+        if (count === 2) {
+            return index === 0 ? 0x00ff00 : 0xff0000;
+        } else if (count === 3) {
+            if (index === 0) return 0x00ff00;
+            if (index === 1) return 0xff8800;
+            if (index === 2) return 0xff0000;
+        } else if (count > 3) {
+            const startColor = 0x00ff00; // Green
+            const endColor = 0xff0000; // Red
+            const step = (endColor - startColor) / (count - 1);
+            return startColor + Math.round(step * index);
+        }
+        return 0x0000ff; // Default color if conditions are not met
+    }
+
+    makePanels(number, graphics, width, height){
+        const colors = [0xff0000, 0xff8800, 0xffff00, 0x00ff00];
+        for (let i = 0; i<number; i++){
+            graphics.fillStyle(this.color(number,i), 1); // Green for SK
+            graphics.fillRect(i*width/number, 0, width/number, height);
+            this.add.text(i*width/number + (width/number / 2), height / 2 - 20, this.optionTexts[i], textStyle).setOrigin(0.5);
+        }
     }
 }
