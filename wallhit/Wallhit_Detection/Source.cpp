@@ -501,6 +501,7 @@ int main(int argc, char * argv[]) try
 					std::vector<cv::Point3f> points;
 					std::vector<double> coefficients = {0.0, 0.0, 0.0};
 					double average = 0.0;
+					std::vector<double> directionVector = { 0.0, 0.0, 0.0 };
 
 					if (lastNPointsOfTrajectory.size() >= 2) {
 						speed = calculateSpeed(lastNPointsOfTrajectory);
@@ -515,6 +516,7 @@ int main(int argc, char * argv[]) try
 						
 						points = { p1, p2, p3 };
 						coefficients = solveParabola(points);
+						directionVector = calculateDirection(points);
 					}
 					//END
 
@@ -546,8 +548,10 @@ int main(int argc, char * argv[]) try
 						clickHistory.insert(it->first);						
 						//if (bSendMouseClicks) inputHandler.SendClickAt(static_cast<int>(screenXY[0].x), static_cast<int>(screenXY[0].y));
 						//START
-						if (bSendMouseClicks) keyboardInputHandler.SendData(screenXY[0].x, screenXY[0].y,
-							speed, coefficients[0], coefficients[1], coefficients[2], average);//TODO: fix if no data except x,y
+						if (bSendMouseClicks) keyboardInputHandler.SendData(static_cast<int>(screenXY[0].x), static_cast<int>(screenXY[0].y),
+							speed, coefficients[0], coefficients[1], coefficients[2], average);
+						//if (bSendMouseClicks) keyboardInputHandler.SendData2(static_cast<int>(screenXY[0].x), static_cast<int>(screenXY[0].y),
+						//	speed, directionVector);
 
 
 

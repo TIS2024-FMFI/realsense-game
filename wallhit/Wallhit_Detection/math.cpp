@@ -67,3 +67,34 @@ double calculateSpeed(const std::vector<cv::Point3f>& points) {
     return sqrt(pow(lastPoint.x - preLastPoint.x, 2) + pow(lastPoint.y - preLastPoint.y, 2)
 		+ pow(lastPoint.z - preLastPoint.z, 2));
 }
+
+std::vector<double> calculateDirection(const std::vector<cv::Point3f>& points) {
+    if (points.size() != 3) {
+        throw std::invalid_argument("Exactly 3 points are required to calculate direction.");
+    }
+
+    // Calculate vectors between the points
+    double v1x = points[1].x - points[0].x;
+    double v1y = points[1].y - points[0].y;
+    double v1z = points[1].z - points[0].z;
+
+    double v2x = points[2].x - points[1].x;
+    double v2y = points[2].y - points[1].y;
+    double v2z = points[2].z - points[1].z;
+
+    // Calculate the average vector
+    double avgX = (v1x + v2x) / 2.0;
+    double avgY = (v1y + v2y) / 2.0;
+    double avgZ = (v1z + v2z) / 2.0;
+
+    // Normalize the vector
+    double magnitude = std::sqrt(avgX * avgX + avgY * avgY + avgZ * avgZ);
+    if (magnitude > 0) {
+        avgX /= magnitude;
+        avgY /= magnitude;
+        avgZ /= magnitude;
+    }
+
+    // Save components as doubles
+    return { avgX, avgY, avgZ };
+}

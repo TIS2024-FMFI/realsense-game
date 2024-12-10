@@ -7,6 +7,8 @@
 #include <iostream>
 #include <thread>
 #include <iomanip>
+#include <fstream>
+#include <vector>
 
 class CKeyboardInputHandler {
 public:
@@ -17,6 +19,7 @@ public:
 	std::string EncodeData(double x, double y, double speed, double a, double b, double c, double avgX);
     void SendData(double x, double y, double speed, double a, double b, double c, double avgX);
 	void SaveDataToFile(double x, double y, double speed, double a, double b, double c, double avgX) const;
+	void SendData2(double x, double y, double speed, const std::vector<double>& directionVector);
 private:
 	int m_resX;
 	int m_resY;

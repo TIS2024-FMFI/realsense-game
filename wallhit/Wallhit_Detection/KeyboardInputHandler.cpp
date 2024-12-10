@@ -4,8 +4,8 @@
 #include <iostream>
 #include <thread>
 #include <iomanip>
-//
 #include <fstream>
+#include <vector>
 
 constexpr int MAX_NORMALIZED_VALUE = 65535;
 constexpr char START_BYTE = 0x02;  // Zaèiatoèný znak prenosu byte
@@ -97,8 +97,8 @@ std::string CKeyboardInputHandler::EncodeData(double x, double y, double speed, 
 }
 
 void CKeyboardInputHandler::SendData(double x, double y, double speed, double a, double b, double c, double avgX) {
-	speed *= 100; // To use number before decimal point
-	if (a > 0) a = -a; // fix because a should be always negative, fixing camera bugs
+	//speed *= 100; // To use number before decimal point
+	//if (a > 0) a = -a; // fix because a should be always negative, fixing camera bugs
     std::string message = EncodeData(x, y, speed, a, b, c, avgX);
 	SaveDataToFile(x, y, speed, a, b, c, avgX);//TODO: Only for tesing purposies, delete after use!!!!!!!!!
 
@@ -134,4 +134,25 @@ void CKeyboardInputHandler::SaveDataToFile(double x, double y, double speed, dou
     else {
         std::cerr << "Unable to open file for writing." << std::endl;
     }
+}
+
+void CKeyboardInputHandler::SendData2(double x, double y, double speed, const std::vector<double>& directionVector)
+{
+	std::ostringstream oss;
+	oss << std::fixed << std::setprecision(6);
+	oss << START_CHAR;
+	oss << x << "," << y << "," << speed << "," << directionVector[0] << "," << directionVector[1] << "," << directionVector[2];
+	oss << END_CHAR;
+
+
+	std::string message = oss.str();
+	for (size_t i = 0; i < message.size(); i += 10) {
+		std::string chunk = message.substr(i, 10);
+		for (char c : chunk) {
+			SendKeystroke(c);
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	}
+
+	std::cout << "Data sent: " << message << std::endl;
 }

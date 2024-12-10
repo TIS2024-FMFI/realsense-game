@@ -17,4 +17,7 @@ double calculateXChange(const std::vector<cv::Point3f>& points);
 // Function to calculate the speed of a set of points
 double calculateSpeed(const std::vector<cv::Point3f>& points);
 
+// Function to calculate the direction of a set of points
+std::vector<double> calculateDirection(const std::vector<cv::Point3f>& points);
+
 #endif
