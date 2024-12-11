@@ -494,29 +494,25 @@ int main(int argc, char * argv[]) try
 					if (!wall.HeadingTowardsTheWall(trajectory)) continue;
 
 					GetLastNPointsOfTrajectory(trajectory, lastNPointsOfTrajectory, numberOfTrajectoryPointsToFit);
+
+					//Update 2024 adding speed and parabola calculation
 					//START
-					// I want to extract speed from lastNPointsOfTrajectory
 					double speed = 0.0;
-					//float a = 0.f, b = 0.f, c = 0.f;
 					std::vector<cv::Point3f> points;
 					std::vector<double> coefficients = {0.0, 0.0, 0.0};
-					double average = 0.0;
-					std::vector<double> directionVector = { 0.0, 0.0, 0.0 };
+					double changeX = 0.0;
 
 					if (lastNPointsOfTrajectory.size() >= 2) {
 						speed = calculateSpeed(lastNPointsOfTrajectory);
-						average = calculateXChange(lastNPointsOfTrajectory);
-
+						changeX = calculateXChange(lastNPointsOfTrajectory);
 					}
-					// take first and last and middle point of trajectory and calculate the parabola
 					if (lastNPointsOfTrajectory.size() > 2) {
-						cv::Point3d p1 = lastNPointsOfTrajectory.back();
-						cv::Point3d p2 = lastNPointsOfTrajectory[lastNPointsOfTrajectory.size() / 2];
-						cv::Point3d p3 = lastNPointsOfTrajectory[0];
+						cv::Point3d lastPoint = lastNPointsOfTrajectory.back();
+						cv::Point3d middlePoint = lastNPointsOfTrajectory[lastNPointsOfTrajectory.size() / 2];
+						cv::Point3d firtPoint = lastNPointsOfTrajectory[0];
 						
-						points = { p1, p2, p3 };
+						points = {firtPoint, middlePoint, lastPoint };
 						coefficients = solveParabola(points);
-						directionVector = calculateDirection(points);
 					}
 					//END
 
@@ -531,7 +527,6 @@ int main(int argc, char * argv[]) try
 					std::vector<cv::Point2f> screenXY = { cv::Point2f(imageXY[0], imageXY[1]) };			
 					cv::perspectiveTransform(screenXY, screenXY, perspectiveMat);	
 
-					//NOTE: control printout
 					//std::cout << std::endl << "ID: " << it->first << " Traj points: " << it->second.trajectory.size() << " Click at: " << screenXY[0].x << " " << screenXY[0].y << std::endl;
 
 					if (screenXY[0].x == 0 && screenXY[0].y == 0)	//something went wrong during line fitting, so lets use less accurate normal projection of last trajectory point
@@ -545,24 +540,17 @@ int main(int argc, char * argv[]) try
 
 					if (screenXY[0].x >= 0 && screenXY[0].y >= 0 && screenXY[0].x <= resX && screenXY[0].y <= resY)
 					{						
-						clickHistory.insert(it->first);						
+						clickHistory.insert(it->first);
+						//Previous version sending only mouse click trough inputHandler
 						//if (bSendMouseClicks) inputHandler.SendClickAt(static_cast<int>(screenXY[0].x), static_cast<int>(screenXY[0].y));
+						
+						//Update 2024 adding speed and parabola calculation sending trough keyboardInputHandler
 						//START
-						if (bSendMouseClicks) keyboardInputHandler.SendData(static_cast<int>(screenXY[0].x), static_cast<int>(screenXY[0].y),
-							speed, coefficients[0], coefficients[1], coefficients[2], average);
-						//if (bSendMouseClicks) keyboardInputHandler.SendData2(static_cast<int>(screenXY[0].x), static_cast<int>(screenXY[0].y),
-						//	speed, directionVector);
-
-
-
-
-						//if (speed) std::cout << "Speed: " << speed << std::endl; //NOTE: control printout, send data to handler
-						//if (coefficients.size() && average) std::cout << "Parabola: " << coefficients[0] << " " << coefficients[1]
-						//	<< " " << coefficients[2] << " " << average << std::endl;
-
+						if (bSendMouseClicks) keyboardInputHandler.SendData(static_cast<int>(screenXY[0].x), 
+							static_cast<int>(screenXY[0].y),speed, coefficients[0], 
+							coefficients[1], coefficients[2], changeX);
 						//END
 					}
-					//NOTE: control printout
 					/*else
 					{
 						std::cout << "Click not sent, out of bounds" << std::endl;
