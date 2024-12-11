@@ -1,4 +1,5 @@
 #include "KeyboardInputHandler.h"
+#include "BallHit.h"
 #include <Windows.h>
 #include <sstream>
 #include <iostream>
@@ -29,36 +30,27 @@ void CKeyboardInputHandler::SendKeystroke(char c) const {
     SendInput(1, &input, sizeof(INPUT));
 }
 
-std::string CKeyboardInputHandler::EncodeData(double x, double y, double speed, double a, double b, double c, double avgX) {
+std::string CKeyboardInputHandler::EncodeData(const BallHit& ball) const {
     std::ostringstream oss;
     oss << std::fixed << std::setprecision(6);
 
-    if (a == 0.0 &&
-        speed == 0.0) 
-    {
-        oss << START_CHAR;
-        oss << x << "," << y;
-        oss << END_CHAR;
-    }
-    else if (a == 0.0) 
-    {
-        oss << START_CHAR;
-        oss << x << "," << y << "," << speed;
-		oss << END_CHAR;
-	}
-	else
-	{
-		oss << START_CHAR;
-		oss << x << "," << y << "," << speed << "," << a << "," << b << "," << c << "," << avgX;
-		oss << END_CHAR;
+    oss << START_CHAR << ball.x << "," << ball.y;
+
+    if (!(ball.a == 0.0 || std::isnan(ball.a)) || ball.speed != 0.0) {
+        oss << "," << ball.speed;
+
+        if (!(ball.a == 0.0 || std::isnan(ball.a))) {
+            oss << "," << ball.a << "," << ball.b << "," << ball.c << "," << ball.changeX;
+        }
     }
 
+    oss << END_CHAR;
     return oss.str();
 }
 
-void CKeyboardInputHandler::SendData(double x, double y, double speed, double a, double b, double c, double avgX) {
-    std::string message = EncodeData(x, y, speed, a, b, c, avgX);
-	SaveDataToFile(x, y, speed, a, b, c, avgX);//TODO: Only for tesing purposies, delete after use!!!!!!!!!
+
+void CKeyboardInputHandler::SendData(const BallHit& ball) {
+    std::string message = EncodeData(ball);
 
     for (size_t i = 0; i < message.size(); i += 10) {
         std::string chunk = message.substr(i, 10);
@@ -68,19 +60,15 @@ void CKeyboardInputHandler::SendData(double x, double y, double speed, double a,
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
 
-    std::cout << "Data sent: " << message << std::endl;
+    std::cout << "Data sent: " << message << std::endl; //NOTE: control printout
 }
 
-//save parameters int txt file
-// TODO: Only for tesing purposies, delete after use!!!!!!!!!
-void CKeyboardInputHandler::SaveDataToFile(double x, double y, double speed, double a, double b, double c, double avgX) const
+int CKeyboardInputHandler::NormalizeCoordinateX(int coordX) const
 {
-    std::ofstream file("parameters.txt", std::ios::app); // Open in append mode
-    if (file.is_open()) {
-        file << x << " " << y << " " << speed << " " << a << " " << b << " " << c << " " << avgX << std::endl; // Add a new line after each entry
-        file.close();
-    }
-    else {
-        std::cerr << "Unable to open file for writing." << std::endl;
-    }
+    return coordX * m_stepX;
+}
+
+int CKeyboardInputHandler::NormalizeCoordinateY(int coordY) const
+{
+    return coordY * m_stepY;
 }

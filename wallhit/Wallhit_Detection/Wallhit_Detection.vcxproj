@@ -20,22 +20,22 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Wallhit_Calibration\Operations.cpp" />
+    <ClCompile Include="BallHit.cpp" />
     <ClCompile Include="CentroidTracker.cpp" />
     <ClCompile Include="ConfigReader.cpp" />
     <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="KeyboardInputHandler.cpp" />
-    <ClCompile Include="Math.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Geometry.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Wallhit_Calibration\GeneralUtils.h" />
+    <ClInclude Include="BallHit.h" />
     <ClInclude Include="CentroidTracker.h" />
     <ClInclude Include="ConfigReader.h" />
     <ClInclude Include="InputHandler.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="KeyboardInputHandler.h" />
-    <ClInclude Include="Math.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

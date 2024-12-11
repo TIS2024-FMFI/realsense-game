@@ -1,27 +1,25 @@
-#ifndef KEYBOARDINPUTHANDLER_H
-#define KEYBOARDINPUTHANDLER_H
+#ifndef KEYBOARD_INPUT_HANDLER_H
+#define KEYBOARD_INPUT_HANDLER_H
 
+#include "BallHit.h"
 #include <string>
-#include <Windows.h>
-#include <sstream>
-#include <iostream>
-#include <thread>
-#include <iomanip>
-#include <fstream>
-#include <vector>
 
 class CKeyboardInputHandler {
 public:
-	CKeyboardInputHandler(int resolutionX, int resolutionY);
+    CKeyboardInputHandler(int resolutionX, int resolutionY);
+
     void SendKeystroke(char c) const;
-	std::string EncodeData(double x, double y, double speed, double a, double b, double c, double avgX);
-    void SendData(double x, double y, double speed, double a, double b, double c, double avgX);
-	void SaveDataToFile(double x, double y, double speed, double a, double b, double c, double avgX) const;
+    std::string EncodeData(const BallHit& ball) const;
+    void SendData(const BallHit& ball);
+
 private:
-	int m_resX;
-	int m_resY;
-	int m_stepX;
-	int m_stepY;
+    int NormalizeCoordinateX(int coordX) const;
+    int NormalizeCoordinateY(int coordY) const;
+
+    int m_resX;
+    int m_resY;
+    int m_stepX;
+    int m_stepY;
 };
 
-#endif
+#endif // KEYBOARD_INPUT_HANDLER_H
