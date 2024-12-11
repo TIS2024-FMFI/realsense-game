@@ -17,6 +17,57 @@ export class Room {
         // Recalculate room properties on window resize
         window.addEventListener('resize', () => this.updateRoom());
 
+        function parseMessageData(message) {
+            const dataParts = message.split(',');
+
+            if (dataParts.length < 3) {
+                throw new Error("Invalid message format");
+            }
+            if(dataParts.length === 3){
+                console.log("OKAY : PRESNE 3")
+            }
+            if(dataParts.length > 3){
+                console.log("OKAY : VIAC AKO 3")
+            }
+            const x = dataParts[0] !== undefined ? parseFloat(dataParts[0]) : undefined;
+            const y = dataParts[1] !== undefined ? parseFloat(dataParts[1]) : undefined;
+            const speed = dataParts[2] !== undefined ? parseFloat(dataParts[2]) : undefined;
+            const a = dataParts[3] !== undefined ? parseFloat(dataParts[3]) : undefined;
+            const b = dataParts[4] !== undefined ? parseFloat(dataParts[4]) : undefined;
+            const c = dataParts[5] !== undefined ? parseFloat(dataParts[5]) : undefined;
+            const avgX = dataParts[6] !== undefined ? parseFloat(dataParts[6]) : undefined;
+
+            console.log("Parsed Data: IN PARSER", { x, y, speed, a, b, c, avgX });
+            return { x, y, speed, a, b, c, avgX };
+        }
+        let buffer = "";
+
+        const START_CHAR = '#';
+        const END_CHAR = '*';
+
+        window.addEventListener('keydown', (event) => {
+            buffer += event.key;
+
+            if (buffer.includes(START_CHAR) && buffer.includes(END_CHAR)) {
+                const startIdx = buffer.indexOf(START_CHAR);
+                const endIdx = buffer.indexOf(END_CHAR, startIdx);
+
+                if (startIdx >= 0 && endIdx > startIdx) {
+                    const message = buffer.substring(startIdx + 1, endIdx);
+
+                    try {
+                        const parsedData = parseMessageData(message);
+                        this.handleMouseClick(parsedData)
+
+                        console.log("Parsed Data:", parsedData);
+                    } catch (error) {
+                        console.error("Error parsing message:", error);
+                    }
+
+                    buffer = "";
+                }
+            }
+        });
         // Listen for mouse click events
         this.scene.input.on('pointerdown', (pointer) => this.handleMouseClick(pointer));
 
@@ -58,15 +109,37 @@ export class Room {
         this.backWall.setDisplaySize(this.width, this.height); // Ensure back wall size is updated
     }
 
-    handleMouseClick(pointer) {
+    handleMouseClick(data) {
         // Get the click position
-        const targetX = pointer.x;
-        const targetY = pointer.y;
+        const targetX = data.x;
+        const targetY = data.y;
 
+        let parabole;
+        if(data.a === undefined){
+            console.warn("Nedefinovane koeficienty paraboly, pouzijem defaultne hodnoty");
+            parabole = {
+                a: 0.02,
+                b: -2,
+                c: 100,
+                x : data.x,
+                y : data.y,
+            }
+        }
+        else{
+            parabole = {
+                a: data.a,
+                b: data.b,
+                c: data.c,
+                x : data.x,
+                y : data.y,
+            }
+        }
+        parabole.z = -parabole.b - Math.sqrt(parabole.b * parabole.b - 4 * parabole.a * parabole.c);
+        console.warn(`Z: ${parabole.z}`);
         // Create a new Ball and store the instance in the balls array
-        const ball = new Ball(this.scene, targetX, targetY, 0, 'ball');
+        const ball = new Ball(this.scene, parabole.x, parabole.y, parabole.z, 'ball');
         // TODO zmena velkosti lopticky a spead nie su kompatibilne
-        ball.moveAlongParabola(0.02, -2, 100, 0, 800, 1, 1);
+        ball.moveAlongParabola(parabole.a, parabole.b, parabole.c, parabole.z, 800, 1, 1);
 
         // Add the new ball to the balls array
         this.balls.push(ball);
