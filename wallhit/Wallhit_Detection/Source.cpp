@@ -13,6 +13,7 @@
 #include "InputHandler.h"
 #include "KeyboardInputHandler.h"
 #include "Math.h"
+#include "BallHit.h"
 #include "Geometry.h"
 #include "..\Wallhit_Calibration\Operations.h"
 #include <chrono>
@@ -497,7 +498,7 @@ int main(int argc, char * argv[]) try
 
 					//Update 2024 adding speed and parabola calculation
 					//START
-					double speed = 0.0;
+					/*double speed = 0.0;
 					std::vector<cv::Point3f> points;
 					std::vector<double> coefficients = {0.0, 0.0, 0.0};
 					double changeX = 0.0;
@@ -513,7 +514,7 @@ int main(int argc, char * argv[]) try
 						
 						points = {firtPoint, middlePoint, lastPoint };
 						coefficients = solveParabola(points);
-					}
+					}*/
 					//END
 
 					cv::fitLine(lastNPointsOfTrajectory, fittedLine, cv::DIST_L2, 0, 0.01, 0.01);
@@ -546,9 +547,13 @@ int main(int argc, char * argv[]) try
 						
 						//Update 2024 adding speed and parabola calculation sending trough keyboardInputHandler
 						//START
-						if (bSendMouseClicks) keyboardInputHandler.SendData(static_cast<int>(screenXY[0].x), 
+						/*if (bSendMouseClicks) keyboardInputHandler.SendData(static_cast<int>(screenXY[0].x), 
 							static_cast<int>(screenXY[0].y),speed, coefficients[0], 
-							coefficients[1], coefficients[2], changeX);
+							coefficients[1], coefficients[2], changeX);*/
+						if (bSendMouseClicks) {
+							keyboardInputHandler.SendData(BallHit(static_cast<int>(screenXY[0].x),
+								static_cast<int>(screenXY[0].y), lastNPointsOfTrajectory));
+						}
 						//END
 					}
 					/*else
