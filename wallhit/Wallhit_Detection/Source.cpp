@@ -12,7 +12,6 @@
 #include "ConfigReader.h"
 #include "InputHandler.h"
 #include "KeyboardInputHandler.h"
-#include "Math.h"
 #include "BallHit.h"
 #include "Geometry.h"
 #include "..\Wallhit_Calibration\Operations.h"

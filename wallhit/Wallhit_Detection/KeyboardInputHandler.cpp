@@ -34,26 +34,20 @@ std::string CKeyboardInputHandler::EncodeData(const BallHit& ball) const {
     std::ostringstream oss;
     oss << std::fixed << std::setprecision(6);
 
-    if (ball.a == 0.0 && ball.speed == 0.0) {
-        oss << START_CHAR;
-        oss << ball.x << "," << ball.y;
-        oss << END_CHAR;
-    }
-    else if (ball.a == 0.0) {
-        oss << START_CHAR;
-        oss << ball.x << "," << ball.y << "," << ball.speed;
-        oss << END_CHAR;
-    }
-    else {
-        oss << START_CHAR;
-        oss << ball.x << "," << ball.y << "," << ball.speed << ","
-            << ball.a << "," << ball.b << ","
-            << ball.c << "," << ball.changeX;
-        oss << END_CHAR;
+    oss << START_CHAR << ball.x << "," << ball.y;
+
+    if (!(ball.a == 0.0 || std::isnan(ball.a)) || ball.speed != 0.0) {
+        oss << "," << ball.speed;
+
+        if (!(ball.a == 0.0 || std::isnan(ball.a))) {
+            oss << "," << ball.a << "," << ball.b << "," << ball.c << "," << ball.changeX;
+        }
     }
 
+    oss << END_CHAR;
     return oss.str();
 }
+
 
 void CKeyboardInputHandler::SendData(const BallHit& ball) {
     std::string message = EncodeData(ball);
