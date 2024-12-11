@@ -1,0 +1,15 @@
+{
+    "AccelTolerance": 0.2,
+    "ContourAreaThresholdMax": 2000.0,
+    "ContourAreaThresholdMin": 400.0,
+    "ContourBoundingBoxHeightMax": 200,
+    "ContourBoundingBoxWidthMax": 200,
+    "Exposure": 10000.0,
+    "MaximalDepth": 4.791,
+    "MinimalDepth": 0.0,
+    "PointCalibrationTimeSeconds": 20,
+    "RangeThresholdHigh": 255,
+    "RangeThresholdLow": 18,
+    "ResultsCheckSeconds": 5,
+    "TransitionTimeSeconds": 4
+}
