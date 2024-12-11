@@ -9,10 +9,6 @@ export class DifficultyScene extends Phaser.Scene {
 
     init(data) {
         this.data = data;
-
-        // this.data.language = 'en';
-        // this.data.players = 1;
-
     }
 
     create() {
@@ -26,6 +22,7 @@ export class DifficultyScene extends Phaser.Scene {
 
         if(this.data.players === 1){
             this.numberOfPanels = 3;
+            this.colors = [0x00ff00, 0xff8800, 0xff0000];
             this.options = [
                 {difficulty: 'easy'},
                 {difficulty: 'medium'},
@@ -38,6 +35,7 @@ export class DifficultyScene extends Phaser.Scene {
             ]
         }else{
             this.numberOfPanels = 2;
+            this.colors = [0x00ff00, 0xff0000 ];
             this.options = [
                 {difficulty: 'easy'},
                 {difficulty: 'medium'}
@@ -66,90 +64,11 @@ export class DifficultyScene extends Phaser.Scene {
         });
     }
 
-    color(count, index) {
-        if (count === 2) {
-            return index === 0 ? 0x00ff00 : 0xff0000;
-        } else if (count === 3) {
-            if (index === 0) return 0x00ff00;
-            if (index === 1) return 0xff8800;
-            if (index === 2) return 0xff0000;
-        } else if (count > 3) {
-            const startColor = 0x00ff00; // Green
-            const endColor = 0xff0000; // Red
-            const step = (endColor - startColor) / (count - 1);
-            return startColor + Math.round(step * index);
-        }
-        return 0x0000ff; // Default color if conditions are not met
-    }
-
     makePanels(number, graphics, width, height){
-        const colors = [0xff0000, 0xff8800, 0xffff00, 0x00ff00];
         for (let i = 0; i<number; i++){
-            graphics.fillStyle(this.color(number,i), 1); // Green for SK
+            graphics.fillStyle(this.colors[i], 1); // Green for SK
             graphics.fillRect(i*width/number, 0, width/number, height);
             this.add.text(i*width/number + (width/number / 2), height / 2 - 20, this.optionTexts[i], textStyle).setOrigin(0.5);
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import {LANGUAGES} from "../Config";
-// import {ConfigScene} from "./ConfigScene";
-//
-// export class DifficultyScene extends Phaser.Scene {
-//     constructor() {
-//         super({ key: 'DifficultyScene' })
-//     }
-//
-//     init(data) {
-//         this.data = data;
-//         this.data.language = 'en';
-//         this.data.players = 1;
-//
-//     }
-//
-//     create() {
-//         this.initData();
-//         this.initiateScreen();
-//     }
-//
-//     initData() {
-//         this.nextScene = 'Game';
-//
-//         if(this.data.players === 1){
-//             this.numberOfPanels = 3;
-//             this.options = [
-//                 {difficulty: 'easy'},
-//                 {difficulty: 'medium'},
-//                 {difficulty: 'hard'}
-//             ]
-//             this.optionTexts = [
-//                 `${LANGUAGES[this.data.language].easy}`,
-//                 `${LANGUAGES[this.data.language].medium}`,
-//                 `${LANGUAGES[this.data.language].hard}`
-//             ]
-//         }else{
-//             this.numberOfPanels = 2;
-//             this.options = [
-//                 {difficulty: 'easy'},
-//                 {difficulty: 'medium'}
-//             ]
-//             this.optionTexts = [
-//                 `${LANGUAGES[this.language].easy}`,
-//                 `${LANGUAGES[this.language].medium}`
-//             ]
-//         }
-//     }
-// }
