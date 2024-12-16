@@ -7,24 +7,31 @@ export const LANGUAGES = {
     sk: {
         language: "Slovenský jazyk",
         lang : "sk",
-        onePlayer: "Hrat sam",
-        twoPlayers: "Hrat s kamaratom",
+        onePlayer: "Hrať sám",
+        twoPlayers: "Hrať s kamarátom",
+        labelsTrue: "S názvami",
+        labelsFalse: "Bez názvov",
         containers: {
             blue: "Papier",
             green: "Sklo",
-            red: "Komunalny odpad",
+            red: "Komunálny odpad",
             yellow: "Plast",
             black: "XYZ",
             orange: "XYZ"
         },
-        score: "Skore",
-        time: "Cas"
+        score: "Skóre",
+        time: "Čas",
+        easy: "Ľahká",
+        medium: "Stredná",
+        hard: "Ťažká"
     },
     en: {
         language: "English",
         lang: "en",
         onePlayer: "Play alone",
         twoPlayers: "Play with friend",
+        labelsTrue: "With Labels",
+        labelsFalse: "Without Labels",
         containers: {
             blue: "Paper",
             green: "Green",
@@ -35,5 +42,14 @@ export const LANGUAGES = {
         },
         score: "Skore",
         time: "Time",
+        easy: "Easy",
+        medium: "Medium",
+        hard: "Hard"
     }
+}
+export const textStyle = {
+    fontSize: '32px',
+    fill: '#000000',
+    fontFamily: 'Arial',
+    fontWeight: 'bold'
 }
