@@ -19,7 +19,7 @@ export class Room {
         window.addEventListener('resize', () => this.updateRoom());
 
         // Listen for mouse click events
-        this.scene.input.on('pointerdown', (pointer) => this.handleMouseClick(pointer));
+        this.scene.input.on('pointerup', (pointer) => this.handleMouseClick(pointer));
     }
 
     preload() {

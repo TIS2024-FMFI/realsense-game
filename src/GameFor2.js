@@ -4,13 +4,7 @@ import { Target } from "./Target.js";
 import Room from "./Room.js";
 import {Waste} from "./Waste.js";
 import { Timer } from "./Timer.js";
-import PowerBar from "./PowerBar.js";
 import {Score} from "./Score.js";
-import { PlayerScene } from './ConfigScenes/PlayerScene.js';
-import { LanguageScene } from './ConfigScenes/LanguageScene.js';
-import { LabelScene } from './ConfigScenes/LabelScene.js';
-import {DifficultyScene} from "./ConfigScenes/DifficultyScene.js";
-// import {ConfigScene} from "./ConfigScenes/ConfigScene.js";
 
 const config = {
     type: Phaser.AUTO,
@@ -23,40 +17,28 @@ const config = {
             debug: false
         }
     },
-  //  scene: {
-  //      preload: preload,
-  //      create: create,
-  //      update: update
-  //  }
-  // Add the language scene first
+    scene: {
+        preload: preload,
+        create: create
+    }// Add the language scene first
     // scene : [LanguageScene, MenuScene],
-    // scene: {
-    //     preload: preload,
-    //     create: create
-    // }// Add the language scene first
-    scene : [LanguageScene, PlayerScene, LabelScene,DifficultyScene],
-    // scene: [ConfigScene],
-    // scene : [LanguageScene, PlayerScene, LabelScene],
 };
 
-const time = 10;
 const game = new Phaser.Game(config);   // inicializácia Phaser
-let easyGame = false;        //level hry - na počet kontajnerov
-let mediumGame = true;        //lever hry - na narocnost objektov
-if(!easyGame){
-    mediumGame = false;
-}
-let shouldDrawText = true; // Podmienka na vykreslenie textu
-let language_sk = true; // Podmienka na vykreslenie slovenského textu
-let language_en = false; // Podmienka na vykreslenie anglického textu textu
-if (language_sk) {
+const initialTime = 10;
+let hardObject = true;
+let shouldDrawText = false; // Podmienka na vykreslenie textu
+let language_sk = true;    // Podmienka na vykreslenie slovenského textu
+let language_en = false;     // Podmienka na vykreslenie anglického textu
+if(language_sk){
     language_en = false;
 }
 let greenScreen;
 let timer;
-let score;
-let powerBar;
-let waste;
+let scorePlayer1;
+let scorePlayer2;
+let waste_left;
+let waste_right;
 
 //načítanie potrebných obrázkov
 function preload() {
@@ -64,7 +46,7 @@ function preload() {
     this.load.image('binBlue', 'images/blue.png');
     this.load.image('binGreen', 'images/green.png');
     this.load.image('binYellow', 'images/yellow.png');
-    this.load.image('binOrange', 'images/brown.png');
+    this.load.image('binBrown', 'images/brown.png');
     this.load.image('binBlack', 'images/black.png');
     this.load.image('backWall', 'images/background.png');
     this.load.image('target', 'images/target2.png');
@@ -132,64 +114,95 @@ function preload() {
 
 //vytvorenie scény
 function create() {
-    const room = new Room(this);
-    //vytváranie powerbaru
-    powerBar = new PowerBar(
-        this,
-        this.cameras.main.width / 2,
-        50,
-        this.cameras.main.width * 0.6,
-        20
-    );
-    // Ovládanie powerbaru
-    this.input.on('pointerdown', () => {
-        powerBar.start();
-    });
+    const room = new Room(this);        //vytvorenie miestnosti
+    createMiddleLine(this);                     // vytvorenie stredovej oddeľovacej čiary
+    //vytváranie odpadu
+    waste_left = new Waste(this, this.cameras.main.width / 4, this.cameras.main.height / 4, true, hardObject);
+    waste_right = new Waste(this, 3*this.cameras.main.width / 4, this.cameras.main.height / 4, true, hardObject);
 
-    this.input.on('pointerup', (pointer) => {
-        powerBar.stop();
-    });
+    const bins = ['binYellow', 'binBlue', 'binGreen', 'binRed'];
+    const names_sk = ["Plast", "Papier", "Sklo", "Kov"];
+    const names_en = ["Plastic", "Paper", "Glass", "Metal"];
 
-    //vykreslenie kontajnerov
-    if(easyGame){
-        createContainers(this, 3, 13, 3);
+    //vytváranie odapadu
+    if(language_sk){
+        createBinGroup(this, bins, names_sk, 0.7, 7, 1.7, calculateFirstGroupPosition);
+        createBinGroup(this, bins, names_sk, 7.7, 13, 1.7, calculateSecondGroupPosition);
     }else{
-        createContainers(this, 2, 14, 2);
+        createBinGroup(this, bins, names_en, 0.7, 7, 1.7, calculateFirstGroupPosition);
+        createBinGroup(this, bins, names_en, 7.7, 13, 1.7, calculateSecondGroupPosition);
     }
 
-    //vytvorenie odpadu
-    waste = new Waste(this, this.cameras.main.width / 2, this.cameras.main.height / 4, easyGame, mediumGame);
-
     // Vytvorenie časovača
-    timer = new Timer(this, time, false, () => {
+    timer = new Timer(this, initialTime, true, () => {
         createGreenScreen(this);
     });
 
-    score = new Score(this, this.cameras.main.width, language_sk);
+    scorePlayer1 = new Score(this, this.cameras.main.width/7, language_sk)
+    scorePlayer2 = new Score(this, this.cameras.main.width, language_sk);
 }
 
-//Funkcia na vytvorenie kontajnerov
-function createContainers(scene, from, to, plus){
+//vytvaranie kontajnerov
+function createBinGroup(scene, bins, names_sk, start, end, step, positionCalculator) {
+    let counter = 1;
     let bin = 0;
-    const bins = ['binYellow', 'binBlue', 'binGreen', 'binRed', 'binOrange', 'binBlack'];
-    const names_sk = ["Plast", "Papier", "Sklo", "Kov", "Bioodpad", "Komunálny\nodpad"];
-    const names_en = ["Plastic", "Paper", "Glass", "Metal", "Bio\nwaste", "Municipal\nwaste"];
-    for (let i = from; i < to; i += plus) {
-        const positionArray = [i / 10 + 0.05, 0.2, 100]; // x, y, z
-        if (shouldDrawText && language_sk) {
-            drawText(scene, positionArray[0], positionArray[1], names_sk[bin]);
-        }else if(shouldDrawText && language_en){
-            drawText(scene, positionArray[0], positionArray[1], names_en[bin]);
+
+    for (let i = start; i < end; i += step) {
+        const {positionArray, xText, yText} = positionCalculator(scene, i, counter);
+
+        if (shouldDrawText) {
+            drawText(scene, xText, yText, names_sk[bin]);
         }
 
         const container = new Container(scene, positionArray[0], positionArray[1], positionArray[2], bins[bin]);
         container.binImage.setDepth(0);
-
         new Target(scene, positionArray[0] + 0.01, positionArray[1], positionArray[2], 'target');
 
         bin++;
+        counter++;
     }
 }
+
+//kalkulacia pozicie lavej skupiny kontajnerov
+function calculateFirstGroupPosition(scene, i, counter) {
+    let positionArray, xText, yText;
+
+    if (counter === 1) {
+        positionArray = [i / 10, 0.2, 25];
+        xText = (i / 10 + 0.02) * scene.cameras.main.width / 1.5;
+        yText = 0.22 * scene.cameras.main.height * 3.7;
+    } else if (counter === 4) {
+        positionArray = [i / 10 - 0.11, 0.2, 25];
+        xText = (i / 10 + 0.05) * scene.cameras.main.width / 1.5;
+        yText = 0.22 * scene.cameras.main.height * 3.7;
+    } else {
+        positionArray = [i / 10 + 0.05, 0.2, 100];
+        xText = (i / 10 + 0.05) * scene.cameras.main.width / 1.5;
+        yText = positionArray[1] * scene.cameras.main.height * 3.7;
+    }
+    return { positionArray, xText, yText };
+}
+//kalkulacia pozicie pravej skupiny kontajnerov
+function calculateSecondGroupPosition(scene, i, counter) {
+    let positionArray, xText, yText;
+
+    if (counter === 1) {
+        positionArray = [i / 10 - 0.1, 0.2, 25];
+        xText = (i / 10 + 0.12) * scene.cameras.main.width / 1.5;
+        yText = 0.22 * scene.cameras.main.height * 3.7;
+    } else if (counter === 4) {
+        positionArray = [i / 10 - 0.22, 0.2, 25];
+        xText = (i / 10 + 0.13) * scene.cameras.main.width / 1.5;
+        yText = 0.22 * scene.cameras.main.height * 3.7;
+    } else {
+        positionArray = [i / 10 + 0.12, 0.2, 100];
+        xText = (i / 10 + 0.12) * scene.cameras.main.width / 1.5;
+        yText = positionArray[1] * scene.cameras.main.height * 3.7;
+    }
+
+    return { positionArray, xText, yText };
+}
+
 
 // Funkcia na vytvorenie zelenej obrazovky
 function createGreenScreen(scene) {
@@ -200,8 +213,7 @@ function createGreenScreen(scene) {
         scene.cameras.main.height,
         0x00ff00
     );
-    console.log('som tu ');
-    greenScreen.setDepth(999);
+    greenScreen.setDepth(1000);
     greenScreen.setVisible(true);
     greenScreen.setInteractive();
     greenScreen.on('pointerdown', () => {
@@ -209,48 +221,63 @@ function createGreenScreen(scene) {
     });
 }
 
-//funkcia na update zatiaľ len powerbaru
-function update(time, delta) {
-    if (powerBar) {
-        powerBar.update(delta);
-    }
-}
-
-// funkcia na vykreslenie textu
-function drawText(scene, x, y, textContent) {
-    const text = scene.add.text(
-        x * scene.cameras.main.width / 1.5,
-        y * scene.cameras.main.height * 3.7,
-        textContent,
-        { fontSize: '20px', fill: '#fff', fontFamily: 'Arial', align: 'center' }
-    );
-    text.setOrigin(0.5, 0.5);
-    text.setDepth(1);
-}
-
 //funkcia na resetovanie hry
 function resetGame(scene) {
+    // Skrytie zelenej obrazovky
     if (greenScreen) {
         greenScreen.setVisible(false);
     }
 
     // Resetovanie časovača
     if (timer) {
-        timer.reset(time); // Reset existujúceho časovača
+        timer.reset(initialTime); // Reset existujúceho časovača
     } else {
-        timer = new Timer(scene, time, false, () => {
+        timer = new Timer(scene, initialTime, true, () => {
             createGreenScreen(scene); // Callback pri vypršaní časovača
         });
     }
 
-    waste.destroy();
-    waste = null;
+    // Zničenie starého odpadu laveho
+    waste_left.destroy();
+    waste_left = null;
+    console.log('som tu');
 
     // Vytvorenie nového odpadu
-    waste = new Waste(scene, scene.cameras.main.width / 2, scene.cameras.main.height / 4, easyGame, mediumGame);
+    waste_left = new Waste(scene, scene.cameras.main.width / 4, scene.cameras.main.height / 4, true, hardObject);
+
+    // Zničenie starého odpadu praveho
+    waste_right.destroy();
+    waste_right = null;
+
+    // Vytvorenie nového odpadu
+    waste_right = new Waste(scene, 3*scene.cameras.main.width / 4, scene.cameras.main.height / 4, true, hardObject);
 }
 
-// zmenň veľkosť hry, keď je zmenená veľkosť obrazovky
+
+//Funkcia na vykreslenie stredovej čiary
+function createMiddleLine(scene) {
+    const verticalLine = scene.add.graphics();
+    verticalLine.lineStyle(10, 0x000000, 1);
+    const midX = scene.cameras.main.width / 2; // Stred obrazovky na osi x
+    verticalLine.beginPath();
+    verticalLine.moveTo(midX, 0); // Začiatok čiary
+    verticalLine.lineTo(midX, scene.cameras.main.height); // Koniec čiary
+    verticalLine.strokePath();
+}
+
+//Funkcia na vykreslenie textu
+function drawText(scene, x, y, name) {
+    const text = scene.add.text(
+        x,
+        y,
+        name, // Názov kontajnera
+        { fontSize: '20px', fill: '#fff', fontFamily: 'Arial', align: 'center' } // Štýl textu
+    );
+    text.setOrigin(0.5, 0.5);
+    text.setDepth(1);
+}
+
+// Resize the game when the window is resized
 window.addEventListener('resize', () => {
     game.scale.resize(window.innerWidth, window.innerHeight);
 });
