@@ -1,14 +1,14 @@
-// js/LanguageScene.js
+// js/CameraScene.js
 import {LANGUAGES, textStyle} from '../Config.js';
 
-export class LanguageScene extends Phaser.Scene {
+export class CameraScene extends Phaser.Scene {
     constructor() {
-        //super()
-        super({ key: 'LanguageScene' });
+        super({ key: 'CameraScene' });
+        this.language = 'en'; // Default language
     }
 
     init(data) {
-        this.data = {};
+        this.data = data;
     }
 
     create() {
@@ -20,14 +20,14 @@ export class LanguageScene extends Phaser.Scene {
     initData(){
         this.numberOfPanels = 2;
         this.colors = [0x00ff00, 0xff0000];
-        this.nextScene = 'CameraScene';
+        this.nextScene = 'PlayerScene';
         this.options = [
-            { language: 'sk' },
-            { language: 'en' }
+            {camera: true},
+            {camera: false}
         ]
         this.optionTexts = [
-            `${LANGUAGES.sk.language} (${LANGUAGES.sk.lang})`,
-            `${LANGUAGES.en.language} (${LANGUAGES.en.lang})`
+            `${LANGUAGES[this.data.language].withCamera}`,
+            `${LANGUAGES[this.data.language].withMouse}`
         ]
     }
 
@@ -49,6 +49,7 @@ export class LanguageScene extends Phaser.Scene {
     }
 
     makePanels(number, graphics, width, height){
+        const colors = [0xff0000, 0xff8800, 0xffff00, 0x00ff00];
         for (let i = 0; i<number; i++){
             graphics.fillStyle(this.colors[i], 1); // Green for SK
             graphics.fillRect(i*width/number, 0, width/number, height);

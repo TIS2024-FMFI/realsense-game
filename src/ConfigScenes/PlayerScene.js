@@ -18,7 +18,12 @@ export class PlayerScene extends Phaser.Scene {
     }
 
     initData(){
-        this.numberOfPanels = 2;
+        if(this.data.camera.valueOf()===true){
+            this.numberOfPanels = 2;
+        }else{
+            this.numberOfPanels = 1;
+        }
+
         this.colors = [0x00ff00, 0xff0000];
         this.nextScene = 'LabelScene';
         this.options = [
