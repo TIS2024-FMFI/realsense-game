@@ -23,7 +23,9 @@ export const LANGUAGES = {
         time: "Čas",
         easy: "Ľahká",
         medium: "Stredná",
-        hard: "Ťažká"
+        hard: "Ťažká",
+        withCamera: "S použitím kamery\nrealsense a projektora",
+        withMouse: "S použitím myši"
     },
     en: {
         language: "English",
@@ -44,10 +46,13 @@ export const LANGUAGES = {
         time: "Time",
         easy: "Easy",
         medium: "Medium",
-        hard: "Hard"
+        hard: "Hard",
+        withCamera: "Using realsense camera\nand projector",
+        withMouse: "Using mouse"
     }
 }
 export const textStyle = {
+    align: "center",
     fontSize: '32px',
     fill: '#000000',
     fontFamily: 'Arial',
