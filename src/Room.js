@@ -1,8 +1,12 @@
 // Room.js
 import Ball from './Ball.js'; // Import the Ball class
 
-export class Room {
-    constructor(scene) {
+export class Room extends Phaser.Scene{
+    constructor() {
+        super({ key: 'Room' });
+    }
+
+    init(scene) {
         this.scene = scene;
         this.width = window.innerWidth; // Initial width
         this.height = window.innerHeight; // Initial height
@@ -10,7 +14,7 @@ export class Room {
         this.wallWidth = this.width * 0.2; // Width of the walls
 
         // Create the graphics object for drawing
-        this.graphics = this.scene.add.graphics({ fillStyle: { color: 0x7B7B7B } });
+        //this.graphics = this.add.graphics({ fillStyle: { color: 0x7B7B7B } });
 
         this.preload(); // Preload images
         this.drawRoom();
@@ -29,7 +33,7 @@ export class Room {
 
     drawRoom() {
         // Clear previous graphics
-        this.graphics.clear();
+        //this.graphics.clear();
 
         // Add the background image for the back wall
         this.backWall = this.scene.add.image(0, 0, 'backWall');
@@ -37,8 +41,8 @@ export class Room {
         this.backWall.setDisplaySize(this.width, this.height); // Adjust the size
 
         // Draw the floor to cover the background
-        this.graphics.fillStyle(0x7B7B7B, 1); // Set floor color
-        this.graphics.fillRect(0, this.height - this.floorDepth, this.width, this.floorDepth); // Draw the floor
+        //this.graphics.fillStyle(0x7B7B7B, 1); // Set floor color
+        //this.graphics.fillRect(0, this.height - this.floorDepth, this.width, this.floorDepth); // Draw the floor
     }
 
     updateRoom() {

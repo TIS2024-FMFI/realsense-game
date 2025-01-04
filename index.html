@@ -6,7 +6,14 @@
   <title>Full-Screen 2D Room Game</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.152.0/build/three.module.js"></script>
+  <script src="src/ConfigScenes/ConfigScene.js" type="module"></script>
+  <script src="src/ConfigScenes/DifficultyScene.js" type="module"></script>
+  <script src="src/ConfigScenes/LabelScene.js" type="module"></script>
+  <script src="src/ConfigScenes/LanguageScene.js" type="module"></script>
+  <script src="src/ConfigScenes/PlayerScene.js" type="module"></script>
   <script src="src/Game.js" type="module"></script>
+  <script src="src/GameFor2.js" type="module"></script>
+
 
   <style>
     body, html {
@@ -17,5 +24,33 @@
   </style>
 </head>
 <body>
+<script type="module">
+  import { DifficultyScene } from './src/ConfigScenes/DifficultyScene.js';
+  import { ConfigScene } from './src/ConfigScenes/ConfigScene.js';
+  import { LabelScene } from './src/ConfigScenes/LabelScene.js';
+  import { LanguageScene } from './src/ConfigScenes/LanguageScene.js';
+  import { PlayerScene } from './src/ConfigScenes/PlayerScene.js';
+  import { Game } from './src/Game.js';
+  import { GameFor2 } from './src/GameFor2.js';
+  // Konfigurácia Phaser hry
+  const config = {
+    type: Phaser.AUTO,
+    width: window.innerWidth,
+    height: window.innerHeight,
+    scene: [
+      LanguageScene,     // Scéna výberu jazyka
+      PlayerScene,       // Scéna výberu hráča
+      LabelScene,         // Scéna popisov
+      DifficultyScene,   // Scéna výberu obtiažnosti
+      ConfigScene,       // Konfigurácia
+      Game,
+      GameFor2
+      //MainGame
+    ],
+  };
+
+  // Spusti hru
+  const game = new Phaser.Game(config);
+</script>
 </body>
 </html>
