@@ -24,6 +24,7 @@ const config = {
         }
     },
     scene: [LanguageScene, PlayerScene, LabelScene, DifficultyScene], preload: preload,
+
 };
 
 
