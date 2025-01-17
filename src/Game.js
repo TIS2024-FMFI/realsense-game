@@ -112,6 +112,7 @@ export class Game extends Phaser.Scene{
     greenScreen;
     timer = null;
     score;
+    camera;
     powerBar;
     waste;
     target_bin = {};
@@ -220,27 +221,30 @@ export class Game extends Phaser.Scene{
             this.easyGame = false;
             this.mediumGame = true;
         }
+        this.camera = this.data.camera == true;
     }
 
     create() {
         this.room = new Room();
         this.room.init(this);
-        this.powerBar=new PowerBar();
-        this.powerBar.init(
-            this,
-            this.cameras.main.width / 2,
-            50,
-            this.cameras.main.width * 0.6,
-            20
-        );
+        if(!this.camera){
+            this.powerBar=new PowerBar();
+            this.powerBar.init(
+                this,
+                this.cameras.main.width / 2,
+                50,
+                this.cameras.main.width * 0.6,
+                20
+            );
 
-        this.input.on('pointerdown', () => {
-            this.powerBar.start();
-        });
+            this.input.on('pointerdown', () => {
+                this.powerBar.start();
+            });
 
-        this.input.on('pointerup', () => {
-            this.powerBar.stop();
-        });
+            this.input.on('pointerup', () => {
+                this.powerBar.stop();
+            });
+        }
 
         if (this.easyGame) {
             this.createContainers(this, 3, 13, 3);
