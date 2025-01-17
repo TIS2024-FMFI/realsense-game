@@ -113,6 +113,11 @@ export class Game extends Phaser.Scene{
     score;
     powerBar;
     waste;
+    target_bin = {};
+    bin_image ={};
+    bins = ['binYellow', 'binBlue', 'binGreen', 'binRed', 'binBrown', 'binBlack'];
+    targets = [];
+
 
     constructor() {
         super({ key: 'Game' });
@@ -192,6 +197,13 @@ export class Game extends Phaser.Scene{
 
     init(data) {
         this.data = data;
+        this.bin_image['binBlack'] = ['bulb', 'button', 'CD', 'ceramics', 'diapers', 'shoes', 'teddy', 'toothbrush', 'tshirt'];
+        this.bin_image['binBlue'] = ['box2', 'box', 'eggs', 'fries', 'newspaper', 'newspaper_roll', 'package', 'paper_cup', 'stick', 'toilettePaper'];
+        this.bin_image['binBrown'] = ['apple', 'apple2', 'banana', 'beet', 'bread', 'egg', 'flower', 'leaves', 'orange', 'tea'];
+        this.bin_image['binGreen'] = ['bottle', 'broken_bottle', 'glass', 'glass2', 'glasses', 'jug', 'mirror', 'parfume', 'shards'];
+        this.bin_image['binRed'] = ['buckle', 'can', 'can2', 'foil', 'fork', 'key', 'pot', 'scissors', 'screw', 'spoon'];
+        this.bin_image['binYellow'] = ['bag', 'bottle2', 'chips', 'cleaning', 'crumpled_botle', 'cup', 'packing', 'soap', 'toothpaste', 'yogurt'];
+
         if (this.data.language === 'sk') {
             this.language_sk = true;
             this.language_en = false;
@@ -236,6 +248,7 @@ export class Game extends Phaser.Scene{
         }
 
         this.waste = new Waste(this, this.cameras.main.width / 2, this.cameras.main.height / 4, this.easyGame, this.mediumGame);
+
         this.timer = new Timer();
         this.timer.init(this, this.initialTime, false, () => {
             this.createGreenScreen(this);
@@ -246,7 +259,6 @@ export class Game extends Phaser.Scene{
 
     createContainers(scene, from, to, plus) {
         let bin = 0;
-        const bins = ['binYellow', 'binBlue', 'binGreen', 'binRed', 'binBrown', 'binBlack'];
         const names_sk = ["Plast", "Papier", "Sklo", "Kov", "Bioodpad", "Komunálny\nodpad"];
         const names_en = ["Plastic", "Paper", "Glass", "Metal", "Bio\nwaste", "Municipal\nwaste"];
         for (let i = from; i < to; i += plus) {
@@ -257,13 +269,16 @@ export class Game extends Phaser.Scene{
                 this.drawText(scene, positionArray[0], positionArray[1], names_en[bin]);
             }
 
-            const container = new Container(scene, positionArray[0], positionArray[1], positionArray[2], bins[bin]);
+            const container = new Container(scene, positionArray[0], positionArray[1], positionArray[2], this.bins[bin]);
+
             container.binImage.setDepth(0);
 
-            new Target(scene, positionArray[0] + 0.01, positionArray[1], positionArray[2], 'target');
-
+            let target = new Target(scene, positionArray[0] + 0.01, positionArray[1], positionArray[2], 'target');
+            this.target_bin[target]=this.bins[bin];
+            this.targets.push(target);
             bin++;
         }
+
     }
 
     createGreenScreen(scene) {
@@ -316,6 +331,21 @@ export class Game extends Phaser.Scene{
         this.waste = null;
 
         this.waste = new Waste(scene, scene.cameras.main.width / 2, scene.cameras.main.height / 4, this.easyGame, this.mediumGame);
+    }
+
+    wasteInRightBin(waste, target){
+        const targetBinColor = this.target_bin[target];
+
+        if (targetBinColor) {
+            const targetBinWastes = this.bin_image[targetBinColor];
+
+            if (this.bin_image[targetBinWastes].includes(waste.getImageKey())) {
+                this.score.addScore(10);
+                this.waste.generateNew();
+            } else {
+                this.score.addScore(-5);
+            }
+        }
     }
 
 }
