@@ -10,6 +10,7 @@ import { PlayerScene } from './ConfigScenes/PlayerScene.js';
 import { LanguageScene } from './ConfigScenes/LanguageScene.js';
 import { LabelScene } from './ConfigScenes/LabelScene.js';
 import {DifficultyScene} from "./ConfigScenes/DifficultyScene.js";
+import {CameraScene} from "./ConfigScenes/CameraScene.js";
 // import {ConfigScene} from "./ConfigScenes/ConfigScene.js";
 
 const config = {
@@ -34,7 +35,7 @@ const config = {
     //     preload: preload,
     //     create: create
     // }// Add the language scene first
-    scene : [LanguageScene, PlayerScene, LabelScene,DifficultyScene],
+    scene : [LanguageScene, CameraScene, PlayerScene, LabelScene,DifficultyScene],
     // scene: [ConfigScene],
     // scene : [LanguageScene, PlayerScene, LabelScene],
 };
