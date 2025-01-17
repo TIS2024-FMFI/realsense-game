@@ -1,6 +1,10 @@
 
-export class Timer {
-    constructor(scene, timeInSeconds, forTwo, onCompleteCallback) {
+export class Timer extends Phaser.Scene{
+    constructor() {
+        super({ key: 'Timer' });
+    }
+
+    init(scene, timeInSeconds, forTwo, onCompleteCallback) {
         this.scene = scene;
         this.timeLeft = timeInSeconds; // Počiatočný čas v sekundách
         this.onCompleteCallback = onCompleteCallback;

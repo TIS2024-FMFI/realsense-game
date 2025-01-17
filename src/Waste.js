@@ -1,5 +1,6 @@
 // waste.js
 export class Waste {
+    randomImageKey;
     constructor(scene, x, y, fourContainers, mediumGame) {
         this.scene = scene;
         this.x = x;
@@ -14,23 +15,26 @@ export class Waste {
             this.images = ['bulb', 'button', 'CD', 'teddy', 'toothbrush', 'box', 'newspaper', 'newspaper_roll', 'paper_cup', 'apple2', 'apple', 'banana', 'beet', 'orange', 'bottle', 'broken_bottle', 'glass', 'mirror', 'shards', 'buckle', 'can', 'key', 'pot', 'scissors', 'bag', 'bottle2', 'crumpled_bottle', 'cup', 'packing', 'chips', 'cleaner', 'soap', 'toothpaste', 'glass', 'glasses', 'jug', 'fries', 'package', 'toilettePaper', 'yogurt', 'candle', 'ceramics', 'diapers', 'shoes', 'tshirt', 'box2', 'eggs', 'stick', 'bread', 'egg', 'flower', 'leaves', 'tea', 'glass2', 'parfume', 'can2', 'foil', 'fork', 'screw', 'spoon'];
         }
 
-        console.log(this.images.length);
         this.generateNew();
     }
 
     generateNew() {
         // Vyber náhodný obrázok z images
-        const randomImageKey = Phaser.Utils.Array.GetRandom(this.images);
+        this.randomImageKey = Phaser.Utils.Array.GetRandom(this.images);
 
         // Nakreslenie bieleho kruhu
         this.circle = this.scene.add.circle(this.x, this.y, 100, 0xffffff);
         this.circle.setDepth(1);
 
         // Pridanie obrázku do stredu kruhu
-        this.image = this.scene.add.image(this.x, this.y, randomImageKey);
+        this.image = this.scene.add.image(this.x, this.y, this.randomImageKey);
         this.image.setDepth(2); // Obrázok bude nad kruhom
 
         this.image.setScale(0.5);
+    }
+
+    getImageKey(){
+        return this.randomImageKey;
     }
 
     destroy() {

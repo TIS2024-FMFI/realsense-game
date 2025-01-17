@@ -1,6 +1,10 @@
-export default class PowerBar {
-    constructor(scene, x, y, width, height, maxPower = 100) {
+export default class PowerBar extends Phaser.Scene{
+    constructor() {
+        super({ key: 'PowerBar' });
+    }
+    init(scene, x, y, width, height, maxPower = 100) {
         this.scene = scene;
+        console.log('width, co prisiel:', x);
         this.x = x;
         this.y = y;
         this.width = width;
@@ -42,12 +46,11 @@ export default class PowerBar {
         if (this.active) {
             if(this.isInTheEnd){
                 this.currentPower -= delta * 0.1; // Rýchlosť nabíjania
-                const newWidth = (this.currentPower / this.maxPower) * this.width;
-                this.bar.width = newWidth;
+                this.bar.width = (this.currentPower / this.maxPower) * this.width;
             }else{
                 this.currentPower += delta * 0.1; // Rýchlosť nabíjania
-                const newWidth = (this.currentPower / this.maxPower) * this.width;
-                this.bar.width = newWidth;
+                console.log(this.width);
+                this.bar.width = (this.currentPower / this.maxPower) * this.width;
             }
         }
     }
