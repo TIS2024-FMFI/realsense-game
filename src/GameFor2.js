@@ -24,7 +24,6 @@ const config = {
     scene: [LanguageScene, PlayerScene, LabelScene, DifficultyScene], preload: preload,
 };
 
-//načítanie potrebných obrázkov
 function preload() {
     this.load.image('binRed', 'images/red.png');
     this.load.image('binBlue', 'images/blue.png');
@@ -97,7 +96,6 @@ function preload() {
 }
 
 export class GameFor2 extends Phaser.Scene{
-    //const game = new Phaser.Game(config);   // inicializácia Phaser
     initialTime = 10;
     hardObject = true;
     shouldDrawText = false; // Podmienka na vykreslenie textu
@@ -201,10 +199,11 @@ export class GameFor2 extends Phaser.Scene{
     }
 
     create() {
-        this.room = new Room();        //vytvorenie miestnosti
+        this.room = new Room();
         this.room.init(this);
 
         this.createMiddleLine(this);                     // vytvorenie stredovej oddeľovacej čiary
+
         //vytváranie odpadu
         this.waste_left = new Waste(this, this.cameras.main.width / 4, this.cameras.main.height / 4, true, this.hardObject);
         this.waste_right = new Waste(this, 3*this.cameras.main.width / 4, this.cameras.main.height / 4, true, this.hardObject);

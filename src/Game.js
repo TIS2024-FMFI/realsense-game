@@ -101,9 +101,8 @@ function preload() {
 
 
 export class Game extends Phaser.Scene{
-    time = 120;
+    initialTime = 10;
     room;
-    //game = new Phaser.Game(config);   // inicializácia Phaser
     easyGame = false;
     mediumGame = true;
     shouldDrawText = true;
@@ -193,7 +192,6 @@ export class Game extends Phaser.Scene{
 
     init(data) {
         this.data = data;
-        console.log('Data received in MainGame:', this.data);
         if (this.data.language === 'sk') {
             this.language_sk = true;
             this.language_en = false;
@@ -214,9 +212,6 @@ export class Game extends Phaser.Scene{
     create() {
         this.room = new Room();
         this.room.init(this);
-        //room.drawRoom();
-        // Initialize power bar without local variable declaration
-        console.log('Moj width:', this.cameras.main.width);
         this.powerBar=new PowerBar();
         this.powerBar.init(
             this,
@@ -226,7 +221,6 @@ export class Game extends Phaser.Scene{
             20
         );
 
-        // Handle power bar interactions
         this.input.on('pointerdown', () => {
             this.powerBar.start();
         });
@@ -241,20 +235,11 @@ export class Game extends Phaser.Scene{
             this.createContainers(this, 2, 14, 2);
         }
 
-        // Initialize waste
         this.waste = new Waste(this, this.cameras.main.width / 2, this.cameras.main.height / 4, this.easyGame, this.mediumGame);
-
-        // Initialize timer
         this.timer = new Timer();
-        this.timer.init(this, 60, false, () => {
+        this.timer.init(this, this.initialTime, false, () => {
             this.createGreenScreen(this);
         });
-        /*
-        this.timer = new Timer(this, this.time, false, () => {
-            this.createGreenScreen(this);
-        });
-
-         */
 
         this.score = new Score(this, this.cameras.main.width, this.language_sk);
     }
@@ -289,7 +274,6 @@ export class Game extends Phaser.Scene{
             scene.cameras.main.height,
             0x00ff00
         );
-        console.log('som tu');
         this.greenScreen.setDepth(999);
         this.greenScreen.setVisible(true);
         this.greenScreen.setInteractive();
@@ -320,7 +304,6 @@ export class Game extends Phaser.Scene{
             this.greenScreen.setVisible(false);
         }
 
-        // Reset timer
         if (this.timer) {
             this.timer.reset(this.time);
         } else {
@@ -332,7 +315,6 @@ export class Game extends Phaser.Scene{
         this.waste.destroy();
         this.waste = null;
 
-        // Create new waste
         this.waste = new Waste(scene, scene.cameras.main.width / 2, scene.cameras.main.height / 4, this.easyGame, this.mediumGame);
     }
 

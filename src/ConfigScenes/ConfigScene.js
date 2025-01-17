@@ -31,7 +31,7 @@ export class ConfigScene extends Phaser.Scene {
 
         // Nastavenie zeleného pozadia
         const graphics = this.add.graphics();
-        graphics.fillStyle(0x00ff00, 1); // Zelená farba
+        graphics.fillStyle(0x00ff00, 1);
         graphics.fillRect(0, 0, width, height);
 
         // Pridanie nápisu "START"
