@@ -113,7 +113,6 @@ export class Room {
         // Get the click position
         const targetX = data.x;
         const targetY = data.y;
-
         let parabole;
         if(data.a === undefined){
             console.warn("Nedefinovane koeficienty paraboly, pouzijem defaultne hodnoty");
@@ -134,12 +133,30 @@ export class Room {
                 y : data.y,
             }
         }
-        parabole.z = -parabole.b - Math.sqrt(parabole.b * parabole.b - 4 * parabole.a * parabole.c);
-        console.warn(`Z: ${parabole.z}`);
+        // TODO testovacie data na funkcnost s mysou
+        const parabolaMouse = {
+            a: 0.58,
+            b: -2.06,
+            c: 1.688,
+            x : 478,
+            y : 294,
+            avgX : -5,
+        }
+        // parabole.z = -parabole.b - Math.sqrt(parabole.b * parabole.b - 4 * parabole.a * parabole.c);
+        // console.warn(`Z: ${parabole.z}`);
         // Create a new Ball and store the instance in the balls array
-        const ball = new Ball(this.scene, parabole.x, parabole.y, parabole.z, 'ball');
+        // const ball = new Ball(this.scene, parabole.x, parabole.y, parabole.z, 'ball');
+        // // TODO zmena velkosti lopticky a spead nie su kompatibilne
+        // ball.moveAlongParabola(parabole.a, parabole.b, parabole.c, parabole.z, 800, 1, 1);
+
+        parabolaMouse.z = -parabolaMouse.b - Math.sqrt(parabolaMouse.b * parabolaMouse.b - 4 * parabolaMouse.a * parabolaMouse.c);
+        console.warn(`Z: ${parabolaMouse.z}`);
+
+
+        // Create a new Ball and store the instance in the balls array
+        const ball = new Ball(this.scene, parabolaMouse.x, parabolaMouse.y, parabolaMouse.z, 'ball', parabolaMouse.avgX);
         // TODO zmena velkosti lopticky a spead nie su kompatibilne
-        ball.moveAlongParabola(parabole.a, parabole.b, parabole.c, parabole.z, 800, 1, 1);
+        ball.moveAlongParabola(parabolaMouse.a, parabolaMouse.b, parabolaMouse.c, parabolaMouse.z, 800, 1, 1);
 
         // Add the new ball to the balls array
         this.balls.push(ball);

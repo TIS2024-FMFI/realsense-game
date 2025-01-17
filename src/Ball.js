@@ -1,11 +1,12 @@
 export class Ball {
-    constructor(scene, x, y, z, imageKey) {
+    constructor(scene, x, y, z, imageKey, wind) {
         this.scene = scene; // Reference to the Phaser scene
         this.x = x;         // X-coordinate
         this.y = y;         // Y-coordinate
         this.z = z;         // Z-coordinate
+        this.wind = wind;
         this.imageKey = imageKey; // Key for the ball image
-        this.scale = 0.9;
+        this.scale = 0.5;
 
         this.sprite = null; // Placeholder for the ball sprite
         this.moving = false; // Track if the ball is currently moving
@@ -81,13 +82,13 @@ export class Ball {
 
             // Calculate the new y position based on the parabola equation
             const y = a * currentZ ** 2 + b * currentZ + c;
-
+            const x = this.x + this.wind;
             // Shrink the ball progressively by reducing its scale
-            this.scale = this.scale * 0.98; // Prevent shrinking below 0.1
+            this.scale = this.scale * 0.95; // Prevent shrinking below 0.1
 
             this.sprite.setScale(this.scale, this.scale); // Update the ball's scale
             // Update the ball's position
-            this.setPosition(this.x, y);
+            this.setPosition(x, y);
 
             // Increment z for the next step
             currentZ += step;
