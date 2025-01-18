@@ -156,7 +156,7 @@ export class Room {
         // Create a new Ball and store the instance in the balls array
         const ball = new Ball(this.scene, parabolaMouse.x, parabolaMouse.y, parabolaMouse.z, 'ball', parabolaMouse.avgX);
         // TODO zmena velkosti lopticky a spead nie su kompatibilne
-        ball.moveAlongParabola(parabolaMouse.a, parabolaMouse.b, parabolaMouse.c, parabolaMouse.z, 800, 1, 1);
+        ball.moveAlongParabola(parabolaMouse.a, parabolaMouse.b, parabolaMouse.c, parabolaMouse.z, 30, 1, 1);
 
         // Add the new ball to the balls array
         this.balls.push(ball);
