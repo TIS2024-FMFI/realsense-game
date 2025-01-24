@@ -4,13 +4,11 @@ import { Target } from "./Target.js";
 import {Room} from "./Room.js";
 import { Waste } from "./Waste.js";
 import { Timer } from "./Timer.js";
-import PowerBar from "./PowerBar.js";
 import { Score } from "./Score.js";
 import { PlayerScene } from './ConfigScenes/PlayerScene.js';
 import { LanguageScene } from './ConfigScenes/LanguageScene.js';
 import { LabelScene } from './ConfigScenes/LabelScene.js';
 import { DifficultyScene } from "./ConfigScenes/DifficultyScene.js";
-
 
 const config = {
     type: Phaser.AUTO,
@@ -19,17 +17,14 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 300 },
+            gravity: 0,
             debug: false
         }
     },
     scene: [LanguageScene, PlayerScene, LabelScene, DifficultyScene], preload: preload,
-
 };
 
-
 function preload() {
-    this.load.image('backWall', 'images/background.png');
     this.load.image('binRed', 'images/red.png');
     this.load.image('binBlue', 'images/blue.png');
     this.load.image('binGreen', 'images/green.png');
@@ -100,33 +95,29 @@ function preload() {
     this.load.image('yogurt', 'images/YELLOW/yogurt.png');
 }
 
-
-export class Game extends Phaser.Scene{
+export class GameFor2 extends Phaser.Scene{
     initialTime = 10;
-    room;
-    easyGame = false;
-    mediumGame = true;
-    shouldDrawText = true;
-    language_sk = true;
-    language_en = false;
+    hardObject = true;
+    shouldDrawText = false; // Podmienka na vykreslenie textu
+    language_sk = true;    // Podmienka na vykreslenie slovenského textu
+    language_en = false;     // Podmienka na vykreslenie anglického textu
     greenScreen;
-    timer = null;
-    score;
-    camera;
-    powerBar;
-    waste;
+    timer;
+    scorePlayer1;
+    scorePlayer2;
+    waste_left;
+    waste_right;
+    room;
     target_bin = {};
     bin_image ={};
     bins = ['binYellow', 'binBlue', 'binGreen', 'binRed', 'binBrown', 'binBlack'];
     targets = [];
 
-
     constructor() {
-        super({ key: 'Game' });
+        super({ key: 'GameFor2' });
     }
 
     preload() {
-        this.load.image('backWall', 'images/background.png');
         this.load.image('binRed', 'images/red.png');
         this.load.image('binBlue', 'images/blue.png');
         this.load.image('binGreen', 'images/green.png');
@@ -205,7 +196,6 @@ export class Game extends Phaser.Scene{
         this.bin_image['binGreen'] = ['bottle', 'broken_bottle', 'glass', 'glass2', 'glasses', 'jug', 'mirror', 'parfume', 'shards'];
         this.bin_image['binRed'] = ['buckle', 'can', 'can2', 'foil', 'fork', 'key', 'pot', 'scissors', 'screw', 'spoon'];
         this.bin_image['binYellow'] = ['bag', 'bottle2', 'chips', 'cleaning', 'crumpled_botle', 'cup', 'packing', 'soap', 'toothpaste', 'yogurt'];
-
         if (this.data.language === 'sk') {
             this.language_sk = true;
             this.language_en = false;
@@ -214,78 +204,105 @@ export class Game extends Phaser.Scene{
             this.language_en = true;
         }
         this.shouldDrawText = this.data.labels === true;
-        if (this.data.difficulty === 'easy') {
-            this.easyGame = true;
-            this.mediumGame = false;
-        }else{
-            this.easyGame = false;
-            this.mediumGame = true;
-        }
-        this.camera = this.data.camera == true;
+        this.hardObject = this.data.difficulty !== 'easy';
     }
 
     create() {
         this.room = new Room();
         this.room.init(this);
-        if(!this.camera){
-            this.powerBar=new PowerBar();
-            this.powerBar.init(
-                this,
-                this.cameras.main.width / 2,
-                50,
-                this.cameras.main.width * 0.6,
-                20
-            );
 
-            this.input.on('pointerdown', () => {
-                this.powerBar.start();
-            });
+        this.createMiddleLine(this);                     // vytvorenie stredovej oddeľovacej čiary
 
-            this.input.on('pointerup', () => {
-                this.powerBar.stop();
-            });
+        //vytváranie odpadu
+        this.waste_left = new Waste(this, this.cameras.main.width / 4, this.cameras.main.height / 4, true, this.hardObject);
+        this.waste_right = new Waste(this, 3*this.cameras.main.width / 4, this.cameras.main.height / 4, true, this.hardObject);
+
+        const bins = ['binYellow', 'binBlue', 'binGreen', 'binRed'];
+        const names_sk = ["Plast", "Papier", "Sklo", "Kov"];
+        const names_en = ["Plastic", "Paper", "Glass", "Metal"];
+
+        //vytváranie odapadu
+        if(this.language_sk){
+            this.createBinGroup(this, bins, names_sk, 0.7, 7, 1.7, this.calculateFirstGroupPosition);
+            this.createBinGroup(this, bins, names_sk, 7.7, 13, 1.7, this.calculateSecondGroupPosition);
+        }else{
+            this.createBinGroup(this, bins, names_en, 0.7, 7, 1.7, this.calculateFirstGroupPosition);
+            this.createBinGroup(this, bins, names_en, 7.7, 13, 1.7, this.calculateSecondGroupPosition);
         }
 
-        if (this.easyGame) {
-            this.createContainers(this, 3, 13, 3);
-        } else {
-            this.createContainers(this, 2, 14, 2);
-        }
-
-        this.waste = new Waste(this, this.cameras.main.width / 2, this.cameras.main.height / 4, this.easyGame, this.mediumGame);
-
+        // Vytvorenie časovača
         this.timer = new Timer();
-        this.timer.init(this, this.initialTime, false, () => {
+        this.timer.init(this, this.initialTime, true, () => {
             this.createGreenScreen(this);
         });
 
-        this.score = new Score(this, this.cameras.main.width, this.language_sk);
+        this.scorePlayer1 = new Score(this, this.cameras.main.width/7, this.language_sk)
+        this.scorePlayer2 = new Score(this, this.cameras.main.width, this.language_sk);
     }
 
-    createContainers(scene, from, to, plus) {
+    createBinGroup(scene, bins, names_sk, start, end, step, positionCalculator) {
+        let counter = 1;
         let bin = 0;
-        const names_sk = ["Plast", "Papier", "Sklo", "Kov", "Bioodpad", "Komunálny\nodpad"];
-        const names_en = ["Plastic", "Paper", "Glass", "Metal", "Bio\nwaste", "Municipal\nwaste"];
-        for (let i = from; i < to; i += plus) {
-            const positionArray = [i / 10 + 0.05, 0.2, 100]; // x, y, z
-            if (this.shouldDrawText && this.language_sk) {
-                this.drawText(scene, positionArray[0], positionArray[1], names_sk[bin]);
-            } else if (this.shouldDrawText && this.language_en) {
-                this.drawText(scene, positionArray[0], positionArray[1], names_en[bin]);
+
+        for (let i = start; i < end; i += step) {
+            const {positionArray, xText, yText} = positionCalculator(scene, i, counter);
+
+            if (this.shouldDrawText) {
+                this.drawText(scene, xText, yText, names_sk[bin]);
             }
 
-            const container = new Container(scene, positionArray[0], positionArray[1], positionArray[2], this.bins[bin]);
-
+            const container = new Container(scene, positionArray[0], positionArray[1], positionArray[2], bins[bin]);
             container.binImage.setDepth(0);
-
             let target = new Target(scene, positionArray[0] + 0.01, positionArray[1], positionArray[2], 'target');
             this.target_bin[target]=this.bins[bin];
             this.targets.push(target);
-            bin++;
-        }
 
+            bin++;
+            counter++;
+        }
     }
 
+    //kalkulacia pozicie lavej skupiny kontajnerov
+    calculateFirstGroupPosition(scene, i, counter) {
+        let positionArray, xText, yText;
+
+        if (counter === 1) {
+            positionArray = [i / 10, 0.2, 25];
+            xText = (i / 10 + 0.02) * scene.cameras.main.width / 1.5;
+            yText = 0.22 * scene.cameras.main.height * 3.7;
+        } else if (counter === 4) {
+            positionArray = [i / 10 - 0.11, 0.2, 25];
+            xText = (i / 10 + 0.05) * scene.cameras.main.width / 1.5;
+            yText = 0.22 * scene.cameras.main.height * 3.7;
+        } else {
+            positionArray = [i / 10 + 0.05, 0.2, 100];
+            xText = (i / 10 + 0.05) * scene.cameras.main.width / 1.5;
+            yText = positionArray[1] * scene.cameras.main.height * 3.7;
+        }
+        return { positionArray, xText, yText };
+    }
+//kalkulacia pozicie pravej skupiny kontajnerov
+    calculateSecondGroupPosition(scene, i, counter) {
+        let positionArray, xText, yText;
+
+        if (counter === 1) {
+            positionArray = [i / 10 - 0.1, 0.2, 25];
+            xText = (i / 10 + 0.12) * scene.cameras.main.width / 1.5;
+            yText = 0.22 * scene.cameras.main.height * 3.7;
+        } else if (counter === 4) {
+            positionArray = [i / 10 - 0.22, 0.2, 25];
+            xText = (i / 10 + 0.13) * scene.cameras.main.width / 1.5;
+            yText = 0.22 * scene.cameras.main.height * 3.7;
+        } else {
+            positionArray = [i / 10 + 0.12, 0.2, 100];
+            xText = (i / 10 + 0.12) * scene.cameras.main.width / 1.5;
+            yText = positionArray[1] * scene.cameras.main.height * 3.7;
+        }
+
+        return { positionArray, xText, yText };
+    }
+
+    // Funkcia na vytvorenie zelenej obrazovky
     createGreenScreen(scene) {
         this.greenScreen = scene.add.rectangle(
             scene.cameras.main.width / 2,
@@ -294,7 +311,7 @@ export class Game extends Phaser.Scene{
             scene.cameras.main.height,
             0x00ff00
         );
-        this.greenScreen.setDepth(999);
+        this.greenScreen.setDepth(1000);
         this.greenScreen.setVisible(true);
         this.greenScreen.setInteractive();
         this.greenScreen.on('pointerdown', () => {
@@ -302,63 +319,91 @@ export class Game extends Phaser.Scene{
         });
     }
 
-    update(time, delta) {
-        if (this.powerBar) {
-            this.powerBar.update(delta);
+    //funkcia na resetovanie hry
+    resetGame(scene) {
+        // Skrytie zelenej obrazovky
+        if (this.greenScreen) {
+            this.greenScreen.setVisible(false);
         }
+
+        // Resetovanie časovača
+        if (this.timer) {
+            this.timer.reset(initialTime); // Reset existujúceho časovača
+        } else {
+            this.timer = new Timer();
+            this.timer.init(scene, initialTime, true, () => {
+                createGreenScreen(scene); // Callback pri vypršaní časovača
+            });
+        }
+
+        // Zničenie starého odpadu laveho
+        this.waste_left.destroy();
+        this.waste_left = null;
+        console.log('som tu');
+
+        // Vytvorenie nového odpadu
+        this.waste_left = new Waste(scene, scene.cameras.main.width / 4, scene.cameras.main.height / 4, true, hardObject);
+
+        // Zničenie starého odpadu praveho
+        this.waste_right.destroy();
+        this.waste_right = null;
+
+        // Vytvorenie nového odpadu
+        this.waste_right = new Waste(scene, 3*scene.cameras.main.width / 4, scene.cameras.main.height / 4, true, hardObject);
     }
 
-    drawText(scene, x, y, textContent) {
+    //Funkcia na vykreslenie stredovej čiary
+    createMiddleLine(scene) {
+        const verticalLine = scene.add.graphics();
+        verticalLine.lineStyle(10, 0x000000, 1);
+        const midX = scene.cameras.main.width / 2; // Stred obrazovky na osi x
+        verticalLine.beginPath();
+        verticalLine.moveTo(midX, 0); // Začiatok čiary
+        verticalLine.lineTo(midX, scene.cameras.main.height); // Koniec čiary
+        verticalLine.strokePath();
+    }
+
+    //Funkcia na vykreslenie textu
+    drawText(scene, x, y, name) {
         const text = scene.add.text(
-            x * scene.cameras.main.width / 1.5,
-            y * scene.cameras.main.height * 3.7,
-            textContent,
-            { fontSize: '20px', fill: '#fff', fontFamily: 'Arial', align: 'center' }
+            x,
+            y,
+            name, // Názov kontajnera
+            { fontSize: '20px', fill: '#fff', fontFamily: 'Arial', align: 'center' } // Štýl textu
         );
         text.setOrigin(0.5, 0.5);
         text.setDepth(1);
     }
 
-    resetGame(scene) {
-        if (this.greenScreen) {
-            this.greenScreen.setVisible(false);
-        }
-
-        if (this.timer) {
-            this.timer.reset(this.time);
-        } else {
-            this.timer = new Timer(scene, this.time, false, () => {
-                this.createGreenScreen(scene);
-            });
-        }
-
-        this.waste.destroy();
-        this.waste = null;
-
-        this.waste = new Waste(scene, scene.cameras.main.width / 2, scene.cameras.main.height / 4, this.easyGame, this.mediumGame);
-    }
-
-    wasteInRightBin(waste, target){
+    wasteInRightBin(waste, target, side){
         const targetBinColor = this.target_bin[target];
 
         if (targetBinColor) {
             const targetBinWastes = this.bin_image[targetBinColor];
 
             if (this.bin_image[targetBinWastes].includes(waste.getImageKey())) {
-                this.score.addScore(10);
-                this.waste.generateNew();
+                if(side === 'left'){
+                    this.scorePlayer1.addScore(10);
+                    this.waste_left.generateNew();
+                }else{
+                    this.scorePlayer2.addScore(10);
+                    this.waste_right.generateNew();
+                }
             } else {
-                this.score.addScore(-5);
+                if(side === 'left'){
+                    this.scorePlayer1.addScore(-5);
+                }else{
+                    this.scorePlayer2.addScore(-5);
+                }
             }
         }
     }
-
 }
+
 /*
-// Resize game on window resize
+// Resize the game when the window is resized
 window.addEventListener('resize', () => {
     game.scale.resize(window.innerWidth, window.innerHeight);
 });
-
 
  */
