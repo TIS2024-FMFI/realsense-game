@@ -1,60 +1,104 @@
-// Ball.js
-
 export class Ball {
-    constructor(scene, targetX, targetY, size = 20) { // Added size parameter with a default value
-        this.scene = scene;
+    constructor(scene, x, y, z, imageKey, wind) {
+        this.scene = scene; // Reference to the Phaser scene
+        this.x = x;         // X-coordinate
+        this.y = y;         // Y-coordinate
+        this.z = z;         // Z-coordinate
+        this.wind = wind;
+        this.imageKey = imageKey; // Key for the ball image
+        this.scale = 0.5;
 
-        // Set the starting position to be in front of the viewer
-        this.startX = targetX; // Target X position where the user clicked
-        this.startY = targetY; // Target Y position where the user clicked
-        this.startZ = 500; // Starting Z position (in front of the viewer)
-
-        // Create a yellow ball at the starting position
-        this.ball = this.scene.add.circle(this.startX, this.startY, size, 0xFFFF00); // Use the size parameter
-        this.ball.setDepth(500);
-
-        this.animationDuration = 2000; // Duration of the animation in milliseconds
-
-        // Add shine effect
-        this.addShineEffect();
-
-        // Start the animation
-        this.animate();
+        this.sprite = null; // Placeholder for the ball sprite
+        this.moving = false; // Track if the ball is currently moving
+        this.preload();     // Load the ball image
+        this.create();      // Draw the ball at the initial position
     }
 
-    animate() {
-        // Move the ball towards the target position while shrinking
-        this.scene.tweens.add({
-            targets: this.ball,
-            x: this.startX, // Target X position
-            y: this.startY, // Target Y position
-            scaleX: 0.4, // Shrink horizontally
-            scaleY: 0.4, // Shrink vertically
-            duration: this.animationDuration,
-            ease: 'Power1', // Easing function for a smoother effect
-            onComplete: () => {
-                this.ball.destroy(); // Destroy the ball after the animation
-            }
-        });
+    preload() {
+        // Load the image if not already loaded
+        if (!this.scene.textures.exists(this.imageKey)) {
+            this.scene.load.image(this.imageKey, 'images/ball2.png');
+            this.scene.load.start(); // Trigger the preload to begin
+        }
     }
 
-    addShineEffect() {
-        // Create a graphics object for the shine
-        const shine = this.scene.add.graphics();
+    create() {
+        // Draw the ball image at the specified (x, y) position
+        this.sprite = this.scene.add.image(this.x, this.y, this.imageKey);
+    }
 
-        // Draw a shine effect
-        shine.fillStyle(0xffffff, 0.5); // White shine color
-        shine.fillCircle(this.startX - 10, this.startY - 10, 10); // Position and size of the shine
+    setPosition(x, y) {
+        // Update the position of the ball
+        this.x = x;
+        this.y = y;
+        if (this.sprite) {
+            this.sprite.setPosition(x, y);
+        }
+    }
 
-        // Fade out shine over time
-        this.scene.tweens.add({
-            targets: shine,
-            alpha: 0,
-            duration: 500, // Duration of shine effect
-            onComplete: () => {
-                shine.destroy(); // Remove shine after the animation
+    reset() {
+        // Stop movement and destroy the ball
+        this.moving = false;
+        if (this.sprite) {
+            this.sprite.destroy();
+            this.sprite = null;
+        }
+    }
+
+    moveAlongParabola(a, b, c, startZ, endZ, step = 1, speed = 50) {
+        /**
+         * Moves the ball along the parabola y = a * z^2 + b * z + c
+         * in the z-y plane.
+         *
+         * @param {number} a - Parabola coefficient for z^2.
+         * @param {number} b - Parabola coefficient for z.
+         * @param {number} c - Constant coefficient.
+         * @param {number} startZ - Starting z position.
+         * @param {number} endZ - Ending z position.
+         * @param {number} step - Step size for z increments.
+         * @param {number} speed - Delay (in ms) between updates.
+         */
+
+        if (this.moving) {
+            return; // Prevent re-triggering movement while already moving
+        }
+
+        this.moving = true; // Mark the ball as moving
+        let currentZ = startZ; // Independent z variable for this ball
+
+        const moveStep = () => {
+            if (!this.moving || (step > 0 && currentZ > endZ) || (step < 0 && currentZ < endZ)) {
+                // Stop moving when the target is reached or ball is reset
+                this.moving = false;
+
+                // Destroy the ball once it reaches its destination
+                if (this.sprite) {
+                    this.sprite.destroy();
+                    this.sprite = null;
+                }
+
+                return;
             }
-        });
+
+            // Calculate the new y position based on the parabola equation
+            const y = a * currentZ ** 2 + b * currentZ + c;
+            const x = this.x + this.wind;
+            // Shrink the ball progressively by reducing its scale
+            this.scale = this.scale * 0.95; // Prevent shrinking below 0.1
+
+            this.sprite.setScale(this.scale, this.scale); // Update the ball's scale
+            // Update the ball's position
+            this.setPosition(x, y);
+
+            // Increment z for the next step
+            currentZ += step;
+
+            // Schedule the next step
+            this.scene.time.delayedCall(speed, moveStep);
+        };
+
+        // Start the movement
+        moveStep();
     }
 }
 
