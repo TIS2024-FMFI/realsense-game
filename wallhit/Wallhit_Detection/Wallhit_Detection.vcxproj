@@ -123,12 +123,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\magul\Documents\realsense_2\json\include;C:\Users\magul\Documents\realsense_2\Intel_RealSense_SDK2.0\include;C:\Users\magul\Documents\realsense_2\opencv\build\include\opencv2;C:\Users\magul\Documents\realsense_2\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>glu32.lib;opengl32.lib;opencv_world4100d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\magul\Documents\realsense_2\Intel_RealSense_SDK2.0\lib\x64;C:\Users\magul\Documents\realsense_2\opencv\build\x64\vc16\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

@@ -92,11 +92,11 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\magul\Documents\realsense_2\opencv\build\include;C:\Users\magul\Documents\realsense_2\opencv\build\include\opencv2;C:\Users\magul\Documents\realsense_2\Intel_RealSense_SDK2.0\include;C:\Users\magul\Documents\realsense_2\json\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>C:\Users\magul\Documents\realsense_2\opencv\build\x64\vc16\lib;C:\Users\magul\Documents\realsense_2\Intel_RealSense_SDK2.0\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>realsense2.lib;opencv_world4100d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
