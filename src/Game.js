@@ -27,6 +27,8 @@ const config = {
 
 
 function preload() {
+    this.load.image('TimerBG', 'images/timerBG.png');
+    this.load.image('Wood', 'images/wood.png');
     this.load.image('backWall', 'images/background.png');
     this.load.image('binRed', 'images/red.png');
     this.load.image('binBlue', 'images/blue.png');
@@ -124,6 +126,8 @@ export class Game extends Phaser.Scene{
     }
 
     preload() {
+        this.load.image('TimerBG', 'images/timerBG.png');
+        this.load.image('Wood', 'images/wood.png');
         this.load.image('backWall', 'images/background.png');
         this.load.image('binRed', 'images/red.png');
         this.load.image('binBlue', 'images/blue.png');
@@ -238,11 +242,12 @@ export class Game extends Phaser.Scene{
         this.waste = new Waste(this, this.cameras.main.width / 2, this.cameras.main.height / 4, this.easyGame, this.mediumGame);
 
         this.timer = new Timer();
-        this.timer.init(this, this.initialTime, false, () => {
+        this.timer.init(this, 'TimerBG', this.initialTime, false, () => {
             this.createGreenScreen(this);
         });
 
-        this.score = new Score(this, this.cameras.main.width, this.language_sk);
+        this.score = new Score();
+        this.score.init(this, 'Wood', this.cameras.main.width, this.language_sk);
     }
 
     createContainers(scene, from, to, plus) {
@@ -318,7 +323,7 @@ export class Game extends Phaser.Scene{
             x * scene.cameras.main.width / 1.5,
             y * scene.cameras.main.height * 3.7,
             textContent,
-            { fontSize: '20px', fill: '#fff', fontFamily: 'Arial', align: 'center' }
+            { fontSize: '30px', fill: '#000', fontFamily: 'Comic Sans MS',stroke: '#fff', strokeThickness: 4, align: 'center' }
         );
         text.setOrigin(0.5, 0.5);
         text.setDepth(1);

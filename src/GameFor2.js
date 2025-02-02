@@ -24,6 +24,8 @@ const config = {
 };
 
 function preload() {
+    this.load.image('TimerBG', 'images/timerBG.png');
+    this.load.image('Wood', 'images/wood.png');
     this.load.image('binRed', 'images/red.png');
     this.load.image('binBlue', 'images/blue.png');
     this.load.image('binGreen', 'images/green.png');
@@ -116,6 +118,8 @@ export class GameFor2 extends Phaser.Scene{
     }
 
     preload() {
+        this.load.image('TimerBG', 'images/timerBG.png');
+        this.load.image('Wood', 'images/wood.png');
         this.load.image('binRed', 'images/red.png');
         this.load.image('binBlue', 'images/blue.png');
         this.load.image('binGreen', 'images/green.png');
@@ -229,12 +233,14 @@ export class GameFor2 extends Phaser.Scene{
 
         // Vytvorenie časovača
         this.timer = new Timer();
-        this.timer.init(this, this.initialTime, true, () => {
+        this.timer.init(this, 'TimerBG', this.initialTime, true, () => {
             this.createGreenScreen(this);
         });
 
-        this.scorePlayer1 = new Score(this, this.cameras.main.width/7, this.language_sk)
-        this.scorePlayer2 = new Score(this, this.cameras.main.width, this.language_sk);
+        this.scorePlayer1 = new Score();
+        this.scorePlayer1.init(this, 'Wood', this.cameras.main.width/5, this.language_sk)
+        this.scorePlayer2 = new Score();
+        this.scorePlayer2.init(this, 'Wood', this.cameras.main.width, this.language_sk);
     }
 
     createBinGroup(scene, bins, names_sk, start, end, step, positionCalculator) {
@@ -387,7 +393,7 @@ export class GameFor2 extends Phaser.Scene{
             x,
             y,
             name, // Názov kontajnera
-            { fontSize: '20px', fill: '#fff', fontFamily: 'Arial', align: 'center' } // Štýl textu
+            { fontSize: '20px', fill: '#000', fontFamily: 'Comic Sans MS',stroke: '#fff', strokeThickness: 4, align: 'center' }
         );
         text.setOrigin(0.5, 0.5);
         text.setDepth(1);

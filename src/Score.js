@@ -1,9 +1,13 @@
-export class Score {
-    constructor(scene, x, language) {
+export class Score extends Phaser.Scene {
+    constructor() {
+        super({ key: 'Score' });
+    }
+    init(scene, image, x, language) {
         this.scene = scene; // Odkaz na scénu
         this.x = x; // Pozícia X
         this.scorePoints = 0; // Inicializácia skóre
         this.language_sk = language;
+        this.image = image;
 
         // Konfigurácie pre pozadie a text
         let squareSizeWidth = 150;
@@ -16,14 +20,14 @@ export class Score {
 
     // Vytvorí pozadie skóre
     createBackground(x, squareSizeWidth, squareSizeHeight, margin) {
-        this.scoreBackground = this.scene.add.rectangle(
-            x - margin - (squareSizeWidth - squareSizeHeight),
-            2 * (squareSizeHeight / 2 + margin) + margin,
-            squareSizeWidth,
-            squareSizeHeight,
-            0x808080 // Sivá farba
+        console.log(this.scene);
+        this.scoreBackground = this.scene.add.image(
+            x - 2 * margin - (squareSizeWidth - squareSizeHeight),
+            squareSizeHeight / 2 + margin,
+            this.image
         );
         this.scoreBackground.setDepth(1);
+        this.scoreBackground.setDisplaySize(squareSizeWidth * 2, squareSizeHeight * 2); // Zväčšenie 2x
     }
 
     // Vytvorí text pre skóre
@@ -32,7 +36,7 @@ export class Score {
             this.scoreBackground.x,
             this.scoreBackground.y,
             this.formatScoreText(), // Formátovaný text
-            { fontSize: '24px', fill: '#fff', fontFamily: 'Arial' }
+            { fontSize: '24px', fill: '#000', fontFamily: 'Arial' }
         );
         this.scoreText.setOrigin(0.5, 0.5);
         this.scoreText.setDepth(100);
