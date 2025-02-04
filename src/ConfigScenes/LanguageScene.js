@@ -7,19 +7,37 @@ export class LanguageScene extends Phaser.Scene {
         super({ key: 'LanguageScene' });
     }
 
+    preload(){
+        this.load.spritesheet('pic_en', 'images/CONFIG/pic_en_spriteSheet.png', { frameWidth: 256, frameHeight: 177 });
+        this.load.spritesheet('pic_sk', 'images/CONFIG/pic_sk_spriteSheet.png', { frameWidth: 256, frameHeight: 177 });
+    }
+
     init(data) {
         this.data = {};
     }
 
     create() {
-        this.initData()
+        this.initData();
+        this.createAnim();
         this.initiateScreen();
+    }
+
+    createAnim(){
+
+        this.optionPictures.forEach((pic) => {
+            this.anims.create({
+                key: pic+'_anim',
+                frames: this.anims.generateFrameNumbers(pic, { start: 0, end: 36 }),
+                frameRate: 15,
+                repeat: -1
+            });
+        });
 
     }
 
     initData(){
         this.numberOfPanels = 2;
-        this.colors = [0x00ff00, 0xff0000];
+        this.colors = [0xa8f05b, 0xf0b95b];
         this.nextScene = 'CameraScene';
         this.options = [
             { language: 'sk' },
@@ -28,6 +46,10 @@ export class LanguageScene extends Phaser.Scene {
         this.optionTexts = [
             `${LANGUAGES.sk.language} (${LANGUAGES.sk.lang})`,
             `${LANGUAGES.en.language} (${LANGUAGES.en.lang})`
+        ]
+        this.optionPictures = [
+            'pic_sk',
+            'pic_en'
         ]
     }
 
@@ -52,7 +74,9 @@ export class LanguageScene extends Phaser.Scene {
         for (let i = 0; i<number; i++){
             graphics.fillStyle(this.colors[i], 1); // Green for SK
             graphics.fillRect(i*width/number, 0, width/number, height);
-            this.add.text(i*width/number + (width/number / 2), height / 2 - 20, this.optionTexts[i], textStyle).setOrigin(0.5);
+            let pic = this.add.sprite(i*width/number + (width/number / 2), height / 2 - 20, this.optionPictures[i]);
+            pic.play(this.optionPictures[i]+ '_anim');
+            this.add.text(i*width/number + (width/number / 2), height / 2 + 90, this.optionTexts[i], textStyle).setOrigin(0.5);
         }
     }
 }
