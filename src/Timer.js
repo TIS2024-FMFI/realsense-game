@@ -23,11 +23,14 @@ export class Timer extends Phaser.Scene {
     }
 
     createBackground(x, squareSize, margin) {
-        this.timerBackground = this.parentScene.add.image(
-            x - margin - squareSize,
-            2 * (squareSize / 2 + 2 * margin),
-            this.image
-        );
+    const POSITION_OFFSET = 2; // Controls vertical positioning
+    const backgroundX = x - margin - squareSize;
+    const backgroundY = POSITION_OFFSET * (squareSize / 2 + 2 * margin);
+
+    this.timerBackground = this.parentScene.add.image(backgroundX,
+                                                        backgroundY,
+                                                        this.image
+                                                    );
         this.timerBackground.setDepth(1);
         this.timerBackground.setDisplaySize(squareSize * 2, squareSize * 2); // Zväčšenie 2x
     }
