@@ -20,12 +20,15 @@ export class Score extends Phaser.Scene {
 
     // Vytvorí pozadie skóre
     createBackground(x, squareSizeWidth, squareSizeHeight, margin) {
+        const POSITION_OFFSET = 2;
         console.log(this.scene);
+        const backgroundX = x - POSITION_OFFSET * margin - (squareSizeWidth - squareSizeHeight);
+        const backgroundY = squareSizeHeight / 2 + margin;
         this.scoreBackground = this.scene.add.image(
-            x - 2 * margin - (squareSizeWidth - squareSizeHeight),
-            squareSizeHeight / 2 + margin,
+            backgroundX, 
+            backgroundY, 
             this.image
-        );
+        );    
         this.scoreBackground.setDepth(1);
         this.scoreBackground.setDisplaySize(squareSizeWidth * 2, squareSizeHeight * 2); // Zväčšenie 2x
     }
