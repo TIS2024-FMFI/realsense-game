@@ -208,27 +208,16 @@ export class Game extends Phaser.Scene{
         this.bin_image['binRed'] = ['buckle', 'can', 'can2', 'foil', 'fork', 'key', 'pot', 'scissors', 'screw', 'spoon'];
         this.bin_image['binYellow'] = ['bag', 'bottle2', 'chips', 'cleaner', 'crumpled_botle', 'cup', 'packing', 'soap', 'toothpaste', 'yogurt'];
 
-        if (this.data.language === 'sk') {
-            this.language_sk = true;
-            this.language_en = false;
-        } else if (this.data.language === 'en') {
-            this.language_sk = false;
-            this.language_en = true;
-        }
-        if (this.data.difficulty === 'easy') {
-            this.easyGame = true;
-            this.mediumGame = false;
-            this.hardGame = false;
-        }else if (this.data.difficulty === 'medium') {
-            this.easyGame = false;
-            this.mediumGame = true;
-            this.hardGame = false;
-        }else{
-            this.easyGame = false;
-            this.mediumGame = false;
-            this.hardGame = true;
-        }
-    }
+        // Set language flags
+        this.language_sk = this.data.language === 'sk';
+        this.language_en = this.data.language === 'en';
+        
+        // Set difficulty flags
+        const difficultyLevels = ['easy', 'medium', 'hard'];
+        this.easyGame = this.data.difficulty === 'easy';
+        this.mediumGame = this.data.difficulty === 'medium';
+        this.hardGame = !difficultyLevels.includes(this.data.difficulty) || this.data.difficulty === 'hard';
+
 
     create() {
         this.room = new Room();
@@ -319,9 +308,11 @@ export class Game extends Phaser.Scene{
     }
 
     drawText(scene, x, y, textContent) {
+        const WIDTH_SCALE = 1.5;
+        const HEIGHT_SCALE = 3.7;
         const text = scene.add.text(
-            x * scene.cameras.main.width / 1.5,
-            y * scene.cameras.main.height * 3.7,
+            x * scene.cameras.main.width / WIDTH_SCALE,
+            y * scene.cameras.main.height * HEIGHT_SCALE,
             textContent,
             { fontSize: '30px', fill: '#000', fontFamily: 'Comic Sans MS',stroke: '#fff', strokeThickness: 4, align: 'center' }
         );
