@@ -93,12 +93,21 @@ export class DifficultyScene extends Phaser.Scene {
     }
 
     makePanels(number, graphics, width, height){
-        for (let i = 0; i<number; i++){
-            graphics.fillStyle(this.colors[i], 1); // Green for SK
+        for (let i = 0; i < number; i++){
+            //Fill panel Background
+            graphics.fillStyle(this.colors[i], 1);
             graphics.fillRect(i*width/number, 0, width/number, height);
-            let pic = this.add.sprite(i*width/number + (width/number / 2), height / 2 - 20, this.optionPictures[i]);
+
+            let horizontalOffset = i*width/number + (width/number / 2);
+            let verticalPicOffset = height / 2 - 20;
+            let verticalTextOffset = height / 2 + 100;
+
+            //  Add Animation
+            let pic = this.add.sprite(horizontalOffset, verticalPicOffset , this.optionPictures[i]);
             pic.play(this.optionPictures[i]+ '_anim');
-            this.add.text(i*width/number + (width/number / 2), height / 2 + 100, this.optionTexts[i], textStyle).setOrigin(0.5);
+
+            // Add Text
+            this.add.text(horizontalOffset, verticalTextOffset, this.optionTexts[i], textStyle).setOrigin(0.5);
         }
     }
 }
