@@ -23,8 +23,6 @@ export class ConfigScene extends Phaser.Scene {
     }
 
     initData(){
-        this.numberOfPanels = 2;
-        this.colors = [0x00ff00, 0xff0000 ];
         this.nextScene1 = 'Game';
         this.nextScene2 = 'GameFor2';
     }
@@ -39,7 +37,9 @@ export class ConfigScene extends Phaser.Scene {
         graphics.fillRect(0, 0, width, height);
 
         // Pridanie nápisu "START"
-        this.add.text(width / 2, height / 2+160, 'START', {
+        let horizontalOffset = width / 2;
+        let verticalTextOffset = height / 2 + 160
+        this.add.text(horizontalOffset, verticalTextOffset, 'START', {
             font: '48px Arial',
             fill: '#ffffff',
         }).setOrigin(0.5);
@@ -48,16 +48,18 @@ export class ConfigScene extends Phaser.Scene {
         this.anims.create({
             key: 'pic_loading_anim',
             frames: this.anims.generateFrameNumbers('pic_loading', { start: 0, end: 15 }),
-            frameRate: 6,
+            frameRate: 8,
             repeat: -1
         });
-        let pic = this.add.sprite((width / 2), height / 2 - 20, 'pic_loading');
+
+        let verticalPicOffset = height / 2 - 20;
+        let pic = this.add.sprite(horizontalOffset, verticalPicOffset, 'pic_loading');
         pic.play('pic_loading_anim');
 
         // Pridanie klikateľnosti
         this.input.once('pointerdown', () => {
             console.log('idem vedla');
-            if(this.data.players==1){
+            if(this.data.players === 1){
                 this.scene.start(this.nextScene1, this.data);
             }else{
                 this.scene.start(this.nextScene2, this.data);

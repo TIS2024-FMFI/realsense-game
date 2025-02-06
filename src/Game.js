@@ -8,6 +8,8 @@ import { Score } from "./Score.js";
 import { PlayerScene } from './ConfigScenes/PlayerScene.js';
 import { LanguageScene } from './ConfigScenes/LanguageScene.js';
 import { DifficultyScene } from "./ConfigScenes/DifficultyScene.js";
+import Ball from './Ball.js';
+import {ConfigScene} from "./ConfigScenes/ConfigScene.js"; // Import the Ball class
 import Ball from './Ball.js'; // Import the Ball class
 
 const targets = [];
@@ -22,7 +24,7 @@ const config = {
             debug: false
         }
     },
-    scene: [LanguageScene, PlayerScene, DifficultyScene], preload: preload,
+    scene: [LanguageScene, PlayerScene, DifficultyScene, ConfigScene], preload: preload,
 
 };
 
@@ -114,7 +116,6 @@ export class Game extends Phaser.Scene{
     timer = null;
     score;
     camera;
-    powerBar;
     balls = [];
     waste;
     target_bin = {};
@@ -225,24 +226,7 @@ export class Game extends Phaser.Scene{
     create() {
         this.room = new Room();
         this.room.init(this, []);
-        if(!this.camera){
-            this.powerBar=new PowerBar();
-            this.powerBar.init(
-                this,
-                this.cameras.main.width / 2,
-                50,
-                this.cameras.main.width * 0.6,
-                20
-            );
 
-            this.input.on('pointerdown', () => {
-                this.powerBar.start();
-            });
-
-            this.input.on('pointerup', () => {
-                this.powerBar.stop();
-            });
-        }
 
         if (this.easyGame) {
             this.createContainers(this, 3, 13, 3);
@@ -253,12 +237,15 @@ export class Game extends Phaser.Scene{
         this.waste = new Waste(this, this.cameras.main.width / 2, this.cameras.main.height / 4, this.easyGame, this.mediumGame);
 
         this.room.targets = this.targets;
-        this.timer = new Timer('timerBackGround');
-        this.timer.init(this, this.initialTime, false, () => {
+        this.timer = new Timer();
+        this.timer.init(this, 'TimerBG', this.initialTime, false, () => {
             this.createGreenScreen(this);
         });
 
-        this.score = new Score(this, this.cameras.main.width, this.language_sk);
+        this.score = new Score();
+        this.score.init(this, 'Wood', this.cameras.main.width, this.language_sk);
+
+        window.addEventListener('pointerup', (pointer) => this.handleMouseClick(pointer));
     }
 
     createContainers(scene, from, to, plus) {
