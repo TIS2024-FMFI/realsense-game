@@ -38,7 +38,7 @@ export class PlayerScene extends Phaser.Scene {
     initData(){
         this.numberOfPanels = 2;
         this.colors = [0xa8f05b, 0xf0b95b];
-        this.nextScene = 'LabelScene';
+        this.nextScene = 'DifficultyScene';
         this.options = [
             {players: 1},
             {players: 2}
