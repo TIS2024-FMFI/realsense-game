@@ -8,6 +8,10 @@ export class ConfigScene extends Phaser.Scene {
         this.language = 'EN'; // Default language
     }
 
+    preload(){
+        this.load.spritesheet('pic_loading', 'images/CONFIG/pic_loading_spriteSheet.png', { frameWidth: 480, frameHeight: 480 });
+    }
+
     init(data) {
         this.data = data;
     }
@@ -31,14 +35,24 @@ export class ConfigScene extends Phaser.Scene {
 
         // Nastavenie zeleného pozadia
         const graphics = this.add.graphics();
-        graphics.fillStyle(0x00ff00, 1);
+        graphics.fillStyle(0xa8f05b, 1);
         graphics.fillRect(0, 0, width, height);
 
         // Pridanie nápisu "START"
-        this.add.text(width / 2, height / 2, 'START', {
+        this.add.text(width / 2, height / 2+160, 'START', {
             font: '48px Arial',
             fill: '#ffffff',
         }).setOrigin(0.5);
+
+        //pridanie animácie
+        this.anims.create({
+            key: 'pic_loading_anim',
+            frames: this.anims.generateFrameNumbers('pic_loading', { start: 0, end: 15 }),
+            frameRate: 6,
+            repeat: -1
+        });
+        let pic = this.add.sprite((width / 2), height / 2 - 20, 'pic_loading');
+        pic.play('pic_loading_anim');
 
         // Pridanie klikateľnosti
         this.input.once('pointerdown', () => {
@@ -50,14 +64,5 @@ export class ConfigScene extends Phaser.Scene {
             }
 
         });
-    }
-
-    makePanels(number, graphics, width, height){
-        const colors = [0xff0000, 0xff8800, 0xffff00, 0x00ff00];
-        for (let i = 0; i<number; i++){
-            graphics.fillStyle(this.colors[i], 1); // Green for SK
-            graphics.fillRect(i*width/number, 0, width/number, height);
-            this.add.text(i*width/number + (width/number / 2), height / 2 - 20, this.optionTexts[i], textStyle).setOrigin(0.5);
-        }
     }
 }

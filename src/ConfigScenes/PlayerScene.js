@@ -26,8 +26,8 @@ export class PlayerScene extends Phaser.Scene {
     createAnim(){
         this.optionPictures.forEach((pic) => {
             this.anims.create({
-                key: pic+'_anim',
-                frames: this.anims.generateFrameNumbers(pic, { start: 0, end: 25 }),
+                key: pic[0]+'_anim',
+                frames: this.anims.generateFrameNumbers(pic[0], { start: 0, end: pic[1] }),
                 frameRate: 15,
                 repeat: -1
             });
@@ -48,8 +48,8 @@ export class PlayerScene extends Phaser.Scene {
             `${LANGUAGES[this.data.language].twoPlayers}`
         ]
         this.optionPictures = [
-            'pic_sp',
-            'pic_mp'
+            ['pic_sp',25],
+            ['pic_mp',23]
         ]
     }
 
@@ -74,8 +74,8 @@ export class PlayerScene extends Phaser.Scene {
         for (let i = 0; i<number; i++){
             graphics.fillStyle(this.colors[i], 1); // Green for SK
             graphics.fillRect(i*width/number, 0, width/number, height);
-            let pic = this.add.sprite(i*width/number + (width/number / 2), height / 2 - 20, this.optionPictures[i]);
-            pic.play(this.optionPictures[i]+ '_anim');
+            let pic = this.add.sprite(i*width/number + (width/number / 2), height / 2 - 20, this.optionPictures[i][0]);
+            pic.play(this.optionPictures[i][0]+ '_anim');
             this.add.text(i*width/number + (width/number / 2), height / 2 + 100, this.optionTexts[i], textStyle).setOrigin(0.5);
         }
     }
