@@ -10,6 +10,7 @@ import { LanguageScene } from './ConfigScenes/LanguageScene.js';
 import { DifficultyScene } from "./ConfigScenes/DifficultyScene.js";
 import Ball from './Ball.js';
 import {ConfigScene} from "./ConfigScenes/ConfigScene.js"; // Import the Ball class
+import Ball from './Ball.js'; // Import the Ball class
 
 const targets = [];
 const config = {
@@ -226,6 +227,7 @@ export class Game extends Phaser.Scene{
         this.room = new Room();
         this.room.init(this, []);
 
+
         if (this.easyGame) {
             this.createContainers(this, 3, 13, 3);
         } else {
@@ -244,7 +246,6 @@ export class Game extends Phaser.Scene{
         this.score.init(this, 'Wood', this.cameras.main.width, this.language_sk);
 
         window.addEventListener('pointerup', (pointer) => this.handleMouseClick(pointer));
-
     }
 
     createContainers(scene, from, to, plus) {

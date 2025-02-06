@@ -3,6 +3,7 @@ export class Timer extends Phaser.Scene {
     constructor() {
         super({ key: 'Timer' });
 
+
     }
 
     init(parentScene, image, timeInSeconds, forTwo, onCompleteCallback) {

@@ -8,6 +8,7 @@ import { Score } from "./Score.js";
 import { PlayerScene } from './ConfigScenes/PlayerScene.js';
 import { LanguageScene } from './ConfigScenes/LanguageScene.js';
 import { DifficultyScene } from "./ConfigScenes/DifficultyScene.js";
+import Ball from './Ball.js'; // Import the Ball class
 
 const config = {
     type: Phaser.AUTO,
@@ -99,6 +100,7 @@ function preload() {
 export class GameFor2 extends Phaser.Scene{
     initialTime = 10;
     hardObject = true;
+
     language_sk = true;    // Podmienka na vykreslenie slovenského textu
     language_en = false;     // Podmienka na vykreslenie anglického textu
     greenScreen;
@@ -108,10 +110,11 @@ export class GameFor2 extends Phaser.Scene{
     waste_left;
     waste_right;
     room;
-    target_bin = {};
-    bin_image ={};
-    bins = ['binYellow', 'binBlue', 'binGreen', 'binRed', 'binBrown', 'binBlack'];
     targets = [];
+    balls = [];
+    bins = ['binYellow', 'binBlue', 'binGreen', 'binRed', 'binYellow', 'binBlue', 'binGreen', 'binRed',];
+    bin_image = {};
+    target_bin = {};
 
     constructor() {
         super({ key: 'GameFor2' });
@@ -236,11 +239,12 @@ export class GameFor2 extends Phaser.Scene{
         this.timer.init(this, 'TimerBG', this.initialTime, true, () => {
             this.createGreenScreen(this);
         });
-
         this.scorePlayer1 = new Score();
         this.scorePlayer1.init(this, 'Wood', this.cameras.main.width/5, this.language_sk)
         this.scorePlayer2 = new Score();
         this.scorePlayer2.init(this, 'Wood', this.cameras.main.width, this.language_sk);
+      
+      window.addEventListener('pointerup', (pointer) => this.handleMouseClick(pointer));
     }
 
     createBinGroup(scene, bins, names_sk, start, end, step, positionCalculator) {
@@ -258,12 +262,15 @@ export class GameFor2 extends Phaser.Scene{
             container.binImage.setDepth(0);
             let target = new Target(scene, positionArray[0] + 0.01, positionArray[1], positionArray[2], 'target');
             this.target_bin[target]=this.bins[bin];
+            target.targetImage.setDepth(0);
+            target.targetType = 'trash';
             this.targets.push(target);
 
             bin++;
             counter++;
         }
     }
+
 
     //kalkulacia pozicie lavej skupiny kontajnerov
     calculateFirstGroupPosition(scene, i, counter) {
@@ -399,26 +406,130 @@ export class GameFor2 extends Phaser.Scene{
         text.setDepth(1);
     }
 
-    wasteInRightBin(waste, target, side){
-        const targetBinColor = this.target_bin[target];
+    // wasteInRightBin(waste, target, side){
+    //     const targetBinColor = this.target_bin[target];
+    //
+    //     if (targetBinColor) {
+    //         const targetBinWastes = this.bin_image[targetBinColor];
+    //
+    //         if (this.bin_image[targetBinWastes].includes(waste.getImageKey())) {
+    //             if(side === 'left'){
+    //                 this.scorePlayer1.addScore(10);
+    //                 this.waste_left.generateNew();
+    //             }else{
+    //                 this.scorePlayer2.addScore(10);
+    //                 this.waste_right.generateNew();
+    //             }
+    //         } else {
+    //             if(side === 'left'){
+    //                 this.scorePlayer1.addScore(-5);
+    //             }else{
+    //                 this.scorePlayer2.addScore(-5);
+    //             }
+    //         }
+    //     }
+    // }
 
+    handleMouseClick(data) {
+        let thrownBy = data.x < this.cameras.main.width / 2 ? 'left' : 'right';
+        const ball = new Ball(this, data.x, data.y, 0, 'ball', 0, this.targets);
+        ball.moveAlongParabola(-0.0005, 4, data.y, 0, 15, 1, 1);
+        ball.thrownBy = thrownBy;
+        this.balls.push(ball);
+    }
+
+    update() {
+        this.balls.forEach((ball, ballIndex) => {
+            if (ball.hasFinishedMoving()) {
+                console.log(ball)
+                this.checkBallTargetCollision(ball, ballIndex); // Check for collision
+            }
+        });
+    }
+
+    checkBallTargetCollision(ball, index) {
+        const hitThreshold = 20;
+        this.targets.forEach((target, targetIndex) => {
+            // Calculate the distance between the ball and the target
+            const distance = Phaser.Math.Distance.Between(
+                ball.sprite.x,
+                ball.sprite.y,
+                target.targetImage.x,
+                target.targetImage.y
+            );
+
+            if (distance <= hitThreshold) {
+                console.log(`Ball hit target at (${target.targetImage.x}, ${target.targetImage.y})!`);
+
+                // Handle the collision
+                this.handleCollision(ball, target, targetIndex);
+
+            }
+        });
+
+        ball.sprite.destroy();
+        this.balls.splice(index, 1);
+    }
+
+    handleCollision(ball, target, targetIndex) {
+        if (target.targetType === 'trash') {
+            if (ball.thrownBy === 'left') {
+                this.wasteInLeftBin(target, targetIndex);
+            } else if (ball.thrownBy === 'right') {
+                this.wasteInRightBin(target, targetIndex);
+            }
+        }
+    }
+
+    // wasteInRightBin(waste, target, side){
+    //     const targetBinColor = this.target_bin[target];
+    //
+    //     if (targetBinColor) {
+    //         const targetBinWastes = this.bin_image[targetBinColor];
+    //
+    //         if (targetBinWastes.includes(this.waste_left.getImageKey())) {
+    //             if(side === 'left'){
+    //                 this.scorePlayer1.addScore(10);
+    //                 this.waste_left.generateNew();
+    //             }else{
+    //                 this.scorePlayer2.addScore(10);
+    //                 this.waste_right.generateNew();
+    //             }
+    //         } else {
+    //             if(side === 'left'){
+    //                 this.scorePlayer1.addScore(-5);
+    //             }else{
+    //                 this.scorePlayer2.addScore(-5);
+    //             }
+    //         }
+    //     }
+    // }
+
+    wasteInRightBin(target, targetIndex) {
+        const targetBinColor = this.bins[targetIndex];
         if (targetBinColor) {
             const targetBinWastes = this.bin_image[targetBinColor];
-
-            if (this.bin_image[targetBinWastes].includes(waste.getImageKey())) {
-                if(side === 'left'){
-                    this.scorePlayer1.addScore(10);
-                    this.waste_left.generateNew();
-                }else{
-                    this.scorePlayer2.addScore(10);
-                    this.waste_right.generateNew();
-                }
+            console.log(targetBinColor);
+            if (targetBinWastes.includes(this.waste_right.getImageKey())) {
+                this.scorePlayer2.addScore(10);
+                this.waste_right.destroy();
+                this.waste_right.generateNew();
             } else {
-                if(side === 'left'){
-                    this.scorePlayer1.addScore(-5);
-                }else{
-                    this.scorePlayer2.addScore(-5);
-                }
+                this.scorePlayer2.addScore(-5);
+            }
+        }
+    }
+
+    wasteInLeftBin(target, targetIndex) {
+        const targetBinColor = this.bins[targetIndex];
+        if (targetBinColor) {
+            const targetBinWastes = this.bin_image[targetBinColor];
+            if (targetBinWastes.includes(this.waste_left.getImageKey())) {
+                this.scorePlayer1.addScore(10);
+                this.waste_left.destroy();
+                this.waste_left.generateNew();
+            } else {
+                this.scorePlayer1.addScore(-5);
             }
         }
     }
