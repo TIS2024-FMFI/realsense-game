@@ -11,6 +11,13 @@ export class DifficultyScene extends Phaser.Scene {
         this.data = data;
     }
 
+    preload() {
+        this.load.image('easy', 'images/Configuration/Difficulty/easy.png');
+        this.load.image('medium', 'images/Configuration/Difficulty/medium.png');
+        this.load.image('hard', 'images/Configuration/Difficulty/hard.png');
+
+    }
+
     create() {
         this.initData()
         this.initiateScreen();
@@ -22,7 +29,7 @@ export class DifficultyScene extends Phaser.Scene {
 
         if(this.data.players === 1){
             this.numberOfPanels = 3;
-            this.colors = [0x00ff00, 0xff8800, 0xff0000];
+            this.colors = [0xFFFFFF, 0xff8800, 0xff0000];
             this.options = [
                 {difficulty: 'easy'},
                 {difficulty: 'medium'},
@@ -66,9 +73,12 @@ export class DifficultyScene extends Phaser.Scene {
 
     makePanels(number, graphics, width, height){
         for (let i = 0; i<number; i++){
-            graphics.fillStyle(this.colors[i], 1); // Green for SK
+            graphics.fillStyle(this.colors[0], 1); // Green for SK
+            this.image = this.add.image(i*width/number + (width/number / 2), height / 2 - 20, this.options[i].difficulty);
+            this.image.setDepth(2);
+            this.image.setScale(1.5);
             graphics.fillRect(i*width/number, 0, width/number, height);
-            this.add.text(i*width/number + (width/number / 2), height / 2 - 20, this.optionTexts[i], textStyle).setOrigin(0.5);
+            // this.add.text(i*width/number + (width/number / 2), height / 2 - 20, this.optionTexts[i], textStyle).setOrigin(0.5);
         }
     }
 }
