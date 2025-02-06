@@ -1,6 +1,8 @@
 export class Timer extends Phaser.Scene {
+
     constructor() {
         super({ key: 'Timer' });
+
     }
 
     init(parentScene, image, timeInSeconds, forTwo, onCompleteCallback) {
@@ -13,6 +15,7 @@ export class Timer extends Phaser.Scene {
         let margin = 20;
 
         if (forTwo) {
+
             this.createBackground(this.parentScene.cameras.main.width / 2 + squareSize + margin, squareSize, margin);
         } else {
             this.createBackground(this.parentScene.cameras.main.width, squareSize, margin);
@@ -23,14 +26,14 @@ export class Timer extends Phaser.Scene {
     }
 
     createBackground(x, squareSize, margin) {
-    const POSITION_OFFSET = 2; // Controls vertical positioning
-    const backgroundX = x - margin - squareSize;
-    const backgroundY = POSITION_OFFSET * (squareSize / 2 + 2 * margin);
+        const POSITION_OFFSET = 2; // Controls vertical positioning
+        const backgroundX = x - margin - squareSize;
+        const backgroundY = POSITION_OFFSET * (squareSize / 2 + 2 * margin);
 
-    this.timerBackground = this.parentScene.add.image(backgroundX,
-                                                        backgroundY,
-                                                        this.image
-                                                    );
+        this.timerBackground = this.parentScene.add.image(backgroundX,
+            backgroundY,
+            this.image
+        );
         this.timerBackground.setDepth(1);
         this.timerBackground.setDisplaySize(squareSize * 2, squareSize * 2); // Zväčšenie 2x
     }
