@@ -20,7 +20,7 @@ export class LanguageScene extends Phaser.Scene {
     initData(){
         this.numberOfPanels = 2;
         this.colors = [0x00ff00, 0xff0000];
-        this.nextScene = 'CameraScene';
+        this.nextScene = 'PlayerScene';
         this.options = [
             { language: 'sk' },
             { language: 'en' }
