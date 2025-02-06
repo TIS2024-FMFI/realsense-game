@@ -4,17 +4,32 @@ import { Target } from "./Target.js";
 import {Room} from "./Room.js";
 import { Waste } from "./Waste.js";
 import { Timer } from "./Timer.js";
-import PowerBar from "./PowerBar.js";
 import { Score } from "./Score.js";
 import { PlayerScene } from './ConfigScenes/PlayerScene.js';
 import { LanguageScene } from './ConfigScenes/LanguageScene.js';
-import { LabelScene } from './ConfigScenes/LabelScene.js';
 import { DifficultyScene } from "./ConfigScenes/DifficultyScene.js";
 import Ball from './Ball.js'; // Import the Ball class
 
 const targets = [];
+const config = {
+    type: Phaser.AUTO,
+    width: window.innerWidth,
+    height: window.innerHeight,
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { y: 300 },
+            debug: false
+        }
+    },
+    scene: [LanguageScene, PlayerScene, DifficultyScene], preload: preload,
+
+};
+
 
 function preload() {
+    this.load.image('TimerBG', 'images/timerBG.png');
+    this.load.image('Wood', 'images/wood.png');
     this.load.image('backWall', 'images/background.png');
     this.load.image('binRed', 'images/red.png');
     this.load.image('binBlue', 'images/blue.png');
@@ -92,7 +107,7 @@ export class Game extends Phaser.Scene{
     room;
     easyGame = false;
     mediumGame = true;
-    shouldDrawText = true;
+    hardGame = false;
     language_sk = true;
     language_en = false;
     greenScreen;
@@ -114,8 +129,8 @@ export class Game extends Phaser.Scene{
     }
 
     preload() {
-        this.load.image('timerBackGround', 'images/timerBackground.png');
-        this.load.image('ball', 'images/ball2.png');
+        this.load.image('TimerBG', 'images/timerBG.png');
+        this.load.image('Wood', 'images/wood.png');
         this.load.image('backWall', 'images/background.png');
         this.load.image('binRed', 'images/red.png');
         this.load.image('binBlue', 'images/blue.png');
@@ -160,7 +175,7 @@ export class Game extends Phaser.Scene{
         this.load.image('glass', 'images/GREEN/glas_GREEN.png');
         this.load.image('mirror', 'images/GREEN/mirror_GREEN.png');
         this.load.image('shards', 'images/GREEN/shards_GREEN.png');
-        this.load.image('glass', 'images/GREEN/glass.png');
+        this.load.image('glass3', 'images/GREEN/glass.png');
         this.load.image('glasses', 'images/GREEN/glasses.png');
         this.load.image('jug', 'images/GREEN/jug.png');
         this.load.image('glass2', 'images/GREEN/glass2.png');
@@ -189,37 +204,22 @@ export class Game extends Phaser.Scene{
 
     init(data) {
         this.data = data;
-        this.bin_image['binBlack'] = ['bulb', 'button', 'CD', 'ceramics', 'diapers', 'shoes', 'teddy', 'toothbrush', 'tshirt'];
+        this.bin_image['binBlack'] = ['bulb', 'button', 'CD', 'ceramics', 'diapers', 'shoes', 'teddy', 'toothbrush', 'tshirt', 'candle'];
         this.bin_image['binBlue'] = ['box2', 'box', 'eggs', 'fries', 'newspaper', 'newspaper_roll', 'package', 'paper_cup', 'stick', 'toilettePaper'];
         this.bin_image['binBrown'] = ['apple', 'apple2', 'banana', 'beet', 'bread', 'egg', 'flower', 'leaves', 'orange', 'tea'];
-        this.bin_image['binGreen'] = ['bottle', 'broken_bottle', 'glass', 'glass2', 'glasses', 'jug', 'mirror', 'parfume', 'shards'];
+        this.bin_image['binGreen'] = ['bottle', 'broken_bottle', 'glass', 'glass2', 'glasses', 'jug', 'mirror', 'parfume', 'shards', 'glass3'];
         this.bin_image['binRed'] = ['buckle', 'can', 'can2', 'foil', 'fork', 'key', 'pot', 'scissors', 'screw', 'spoon'];
-        this.bin_image['binYellow'] = ['bag', 'bottle2', 'chips', 'cleaning', 'crumpled_botle', 'cup', 'packing', 'soap', 'toothpaste', 'yogurt'];
+        this.bin_image['binYellow'] = ['bag', 'bottle2', 'chips', 'cleaner', 'crumpled_botle', 'cup', 'packing', 'soap', 'toothpaste', 'yogurt'];
 
-        if (this.data.language === 'sk') {
-            this.language_sk = true;
-            this.language_en = false;
-        } else if (this.data.language === 'en') {
-            this.language_sk = false;
-            this.language_en = true;
-        }
-        this.shouldDrawText = this.data.labels === true;
-        if (this.data.difficulty === 'easy') {
-            this.easyGame = true;
-            this.mediumGame = false;
-        }else{
-            this.easyGame = false;
-            this.mediumGame = true;
-        }
-        this.camera = this.data.camera == true;
+        // Set language flags
+        this.language_sk = this.data.language === 'sk';
+        this.language_en = this.data.language === 'en';
 
-        this.balls = [];
-
-        window.addEventListener('pointerup', (pointer) => this.handleMouseClick(pointer));
-        // window.addEventListener('resize', () => {
-        //     game.scale.resize(window.innerWidth, window.innerHeight);
-        // });
-
+        // Set difficulty flags
+        const difficultyLevels = ['easy', 'medium', 'hard'];
+        this.easyGame = this.data.difficulty === 'easy';
+        this.mediumGame = this.data.difficulty === 'medium';
+        this.hardGame = !difficultyLevels.includes(this.data.difficulty) || this.data.difficulty === 'hard';
     }
 
     create() {
@@ -259,9 +259,6 @@ export class Game extends Phaser.Scene{
         });
 
         this.score = new Score(this, this.cameras.main.width, this.language_sk);
-
-
-        // this.physics.add.overlap(this.balls, this.targets, this.handleCollision, null, this);
     }
 
     createContainers(scene, from, to, plus) {
@@ -270,10 +267,12 @@ export class Game extends Phaser.Scene{
         const names_en = ["Plastic", "Paper", "Glass", "Metal", "Bio\nwaste", "Municipal\nwaste"];
         for (let i = from; i < to; i += plus) {
             const positionArray = [i / 10 + 0.05, 0.2, 100]; // x, y, z
-            if (this.shouldDrawText && this.language_sk) {
-                this.drawText(scene, positionArray[0], positionArray[1], names_sk[bin]);
-            } else if (this.shouldDrawText && this.language_en) {
-                this.drawText(scene, positionArray[0], positionArray[1], names_en[bin]);
+            if(!this.hardGame){
+                if (this.language_sk) {
+                    this.drawText(scene, positionArray[0], positionArray[1], names_sk[bin]);
+                } else if (this.language_en) {
+                    this.drawText(scene, positionArray[0], positionArray[1], names_en[bin]);
+                }
             }
 
             const container = new Container(scene, positionArray[0], positionArray[1], positionArray[2], this.bins[bin]);
@@ -297,16 +296,36 @@ export class Game extends Phaser.Scene{
     }
 
     createGreenScreen(scene) {
+        // Vytvorenie tmavšej zelenej obrazovky
         this.greenScreen = scene.add.rectangle(
             scene.cameras.main.width / 2,
             scene.cameras.main.height / 2,
             scene.cameras.main.width,
             scene.cameras.main.height,
-            0x00ff00
+            0x006400 // Tmavozelená farba
         );
+
         this.greenScreen.setDepth(999);
         this.greenScreen.setVisible(true);
         this.greenScreen.setInteractive();
+
+        // Vytvorenie bieleho textu v strede obrazovky
+        const scoreText = scene.add.text(
+            scene.cameras.main.width / 2, // X pozícia (stred)
+            scene.cameras.main.height / 2, // Y pozícia (stred)
+            `SCORE: ${this.score.getScore()}`, // Text na zobrazenie
+            {
+                fontSize: '32px', // Veľkosť písma
+                color: '#ffffff', // Biela farba textu
+                fontStyle: 'bold', // Tučný text
+                align: 'center'
+            }
+        );
+
+        scoreText.setOrigin(0.5); // Nastavenie, aby text bol centrovaný
+        scoreText.setDepth(1000); // Zabezpečí, že text je nad zelenou obrazovkou
+
+        // Obsluha kliknutia na zelenú obrazovku
         this.greenScreen.on('pointerdown', () => {
             this.resetGame(scene);
         });
@@ -359,33 +378,21 @@ export class Game extends Phaser.Scene{
     }
 
     drawText(scene, x, y, textContent) {
+        const WIDTH_SCALE = 1.5;
+        const HEIGHT_SCALE = 3.7;
         const text = scene.add.text(
-            x * scene.cameras.main.width / 1.5,
-            y * scene.cameras.main.height * 3.7,
+            x * scene.cameras.main.width / WIDTH_SCALE,
+            y * scene.cameras.main.height * HEIGHT_SCALE,
             textContent,
-            { fontSize: '20px', fill: '#fff', fontFamily: 'Arial', align: 'center' }
+            { fontSize: '30px', fill: '#000', fontFamily: 'Comic Sans MS',stroke: '#fff', strokeThickness: 4, align: 'center' }
         );
         text.setOrigin(0.5, 0.5);
         text.setDepth(1);
     }
 
     resetGame(scene) {
-        if (this.greenScreen) {
-            this.greenScreen.setVisible(false);
-        }
-
-        if (this.timer) {
-            this.timer.reset(this.time);
-        } else {
-            this.timer = new Timer(scene, this.time, false, () => {
-                this.createGreenScreen(scene);
-            });
-        }
-
-        this.waste.destroy();
-        this.waste = null;
-
-        this.waste = new Waste(scene, scene.cameras.main.width / 2, scene.cameras.main.height / 4, this.easyGame, this.mediumGame);
+        // Obnoví stránku (refresh browseru)
+        window.location.reload();
     }
 
     handleMouseClick(data) {

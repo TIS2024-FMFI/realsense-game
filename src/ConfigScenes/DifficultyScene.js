@@ -7,6 +7,12 @@ export class DifficultyScene extends Phaser.Scene {
         this.language = 'en'; // Default language
     }
 
+    preload(){
+        this.load.spritesheet('pic_easy', 'images/CONFIG/pic_easy_spriteSheet.png', { frameWidth: 352, frameHeight: 222 });
+        this.load.spritesheet('pic_medium', 'images/CONFIG/pic_medium_spriteSheet.png', { frameWidth: 244, frameHeight: 262 });
+        this.load.spritesheet('pic_hard', 'images/CONFIG/pic_hard_spriteSheet.png', { frameWidth: 240, frameHeight: 318 });
+    }
+
     init(data) {
         this.data = data;
     }
@@ -19,8 +25,21 @@ export class DifficultyScene extends Phaser.Scene {
     }
 
     create() {
-        this.initData()
+        this.initData();
+        this.createAnim();
         this.initiateScreen();
+
+    }
+
+    createAnim(){
+        this.optionPictures.forEach((pic) => {
+            this.anims.create({
+                key: pic+'_anim',
+                frames: this.anims.generateFrameNumbers(pic, { start: 0, end: 14 }),
+                frameRate: 6,
+                repeat: -1
+            });
+        });
 
     }
 
@@ -29,7 +48,7 @@ export class DifficultyScene extends Phaser.Scene {
 
         if(this.data.players === 1){
             this.numberOfPanels = 3;
-            this.colors = [0xFFFFFF, 0xff8800, 0xff0000];
+            this.colors = [0xa8f05b, 0xf0b95b, 0xf56f42];
             this.options = [
                 {difficulty: 'easy'},
                 {difficulty: 'medium'},
@@ -40,9 +59,14 @@ export class DifficultyScene extends Phaser.Scene {
                 `${LANGUAGES[this.data.language].medium}`,
                 `${LANGUAGES[this.data.language].hard}`
             ]
+            this.optionPictures = [
+                'pic_easy',
+                'pic_medium',
+                'pic_hard'
+            ]
         }else{
             this.numberOfPanels = 2;
-            this.colors = [0x00ff00, 0xff0000 ];
+            this.colors = [0xa8f05b, 0xf0b95b];
             this.options = [
                 {difficulty: 'easy'},
                 {difficulty: 'medium'}
@@ -50,6 +74,10 @@ export class DifficultyScene extends Phaser.Scene {
             this.optionTexts = [
                 `${LANGUAGES[this.language].easy}`,
                 `${LANGUAGES[this.language].medium}`
+            ]
+            this.optionPictures = [
+                'pic_easy',
+                'pic_medium'
             ]
         }
     }
@@ -78,7 +106,9 @@ export class DifficultyScene extends Phaser.Scene {
             this.image.setDepth(2);
             this.image.setScale(1.5);
             graphics.fillRect(i*width/number, 0, width/number, height);
-            // this.add.text(i*width/number + (width/number / 2), height / 2 - 20, this.optionTexts[i], textStyle).setOrigin(0.5);
+            let pic = this.add.sprite(i*width/number + (width/number / 2), height / 2 - 20, this.optionPictures[i]);
+            pic.play(this.optionPictures[i]+ '_anim');
+            this.add.text(i*width/number + (width/number / 2), height / 2 + 100, this.optionTexts[i], textStyle).setOrigin(0.5);
         }
     }
 }

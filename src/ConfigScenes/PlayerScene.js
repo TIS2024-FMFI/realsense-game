@@ -7,25 +7,38 @@ export class PlayerScene extends Phaser.Scene {
         this.language = 'en'; // Default language
     }
 
+    preload(){
+        this.load.spritesheet('pic_sp', 'images/CONFIG/pic_sp_spriteSheet.png', { frameWidth: 200, frameHeight: 300 });
+        this.load.spritesheet('pic_mp', 'images/CONFIG/pic_mp_spriteSheet.png', { frameWidth: 200, frameHeight: 300 });
+    }
+
     init(data) {
         this.data = data;
     }
 
     create() {
-        this.initData()
+        this.initData();
+        this.createAnim();
         this.initiateScreen();
 
     }
 
-    initData(){
-        if(this.data.camera.valueOf()===true){
-            this.numberOfPanels = 2;
-        }else{
-            this.numberOfPanels = 1;
-        }
+    createAnim(){
+        this.optionPictures.forEach((pic) => {
+            this.anims.create({
+                key: pic[0]+'_anim',
+                frames: this.anims.generateFrameNumbers(pic[0], { start: 0, end: pic[1] }),
+                frameRate: 15,
+                repeat: -1
+            });
+        });
 
-        this.colors = [0x00ff00, 0xff0000];
-        this.nextScene = 'LabelScene';
+    }
+
+    initData(){
+        this.numberOfPanels = 2;
+        this.colors = [0xa8f05b, 0xf0b95b];
+        this.nextScene = 'DifficultyScene';
         this.options = [
             {players: 1},
             {players: 2}
@@ -33,6 +46,10 @@ export class PlayerScene extends Phaser.Scene {
         this.optionTexts = [
             `${LANGUAGES[this.data.language].onePlayer}`,
             `${LANGUAGES[this.data.language].twoPlayers}`
+        ]
+        this.optionPictures = [
+            ['pic_sp',25],
+            ['pic_mp',23]
         ]
     }
 
@@ -54,11 +71,12 @@ export class PlayerScene extends Phaser.Scene {
     }
 
     makePanels(number, graphics, width, height){
-        const colors = [0xff0000, 0xff8800, 0xffff00, 0x00ff00];
         for (let i = 0; i<number; i++){
             graphics.fillStyle(this.colors[i], 1); // Green for SK
             graphics.fillRect(i*width/number, 0, width/number, height);
-            this.add.text(i*width/number + (width/number / 2), height / 2 - 20, this.optionTexts[i], textStyle).setOrigin(0.5);
+            let pic = this.add.sprite(i*width/number + (width/number / 2), height / 2 - 20, this.optionPictures[i][0]);
+            pic.play(this.optionPictures[i][0]+ '_anim');
+            this.add.text(i*width/number + (width/number / 2), height / 2 + 100, this.optionTexts[i], textStyle).setOrigin(0.5);
         }
     }
 }

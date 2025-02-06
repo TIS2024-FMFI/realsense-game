@@ -7,7 +7,6 @@ import { Timer } from "./Timer.js";
 import { Score } from "./Score.js";
 import { PlayerScene } from './ConfigScenes/PlayerScene.js';
 import { LanguageScene } from './ConfigScenes/LanguageScene.js';
-import { LabelScene } from './ConfigScenes/LabelScene.js';
 import { DifficultyScene } from "./ConfigScenes/DifficultyScene.js";
 import Ball from './Ball.js'; // Import the Ball class
 
@@ -22,10 +21,12 @@ const config = {
             debug: false
         }
     },
-    scene: [LanguageScene, PlayerScene, LabelScene, DifficultyScene], preload: preload,
+    scene: [LanguageScene, PlayerScene, DifficultyScene], preload: preload,
 };
 
 function preload() {
+    this.load.image('TimerBG', 'images/timerBG.png');
+    this.load.image('Wood', 'images/wood.png');
     this.load.image('binRed', 'images/red.png');
     this.load.image('binBlue', 'images/blue.png');
     this.load.image('binGreen', 'images/green.png');
@@ -99,9 +100,9 @@ function preload() {
 export class GameFor2 extends Phaser.Scene{
     initialTime = 10;
     hardObject = true;
-    shouldDrawText = false;
-    language_sk = true;
-    language_en = false;
+
+    language_sk = true;    // Podmienka na vykreslenie slovenského textu
+    language_en = false;     // Podmienka na vykreslenie anglického textu
     greenScreen;
     timer;
     scorePlayer1;
@@ -120,6 +121,8 @@ export class GameFor2 extends Phaser.Scene{
     }
 
     preload() {
+        this.load.image('TimerBG', 'images/timerBG.png');
+        this.load.image('Wood', 'images/wood.png');
         this.load.image('binRed', 'images/red.png');
         this.load.image('binBlue', 'images/blue.png');
         this.load.image('binGreen', 'images/green.png');
@@ -192,12 +195,12 @@ export class GameFor2 extends Phaser.Scene{
 
     init(data) {
         this.data = data;
-        this.bin_image['binBlack'] = ['bulb', 'button', 'CD', 'ceramics', 'diapers', 'shoes', 'teddy', 'toothbrush', 'tshirt'];
+        this.bin_image['binBlack'] = ['bulb', 'button', 'CD', 'ceramics', 'diapers', 'shoes', 'teddy', 'toothbrush', 'tshirt', 'candle'];
         this.bin_image['binBlue'] = ['box2', 'box', 'eggs', 'fries', 'newspaper', 'newspaper_roll', 'package', 'paper_cup', 'stick', 'toilettePaper'];
         this.bin_image['binBrown'] = ['apple', 'apple2', 'banana', 'beet', 'bread', 'egg', 'flower', 'leaves', 'orange', 'tea'];
-        this.bin_image['binGreen'] = ['bottle', 'broken_bottle', 'glass', 'glass2', 'glasses', 'jug', 'mirror', 'parfume', 'shards'];
+        this.bin_image['binGreen'] = ['bottle', 'broken_bottle', 'glass', 'glass2', 'glasses', 'jug', 'mirror', 'parfume', 'shards', 'glass3'];
         this.bin_image['binRed'] = ['buckle', 'can', 'can2', 'foil', 'fork', 'key', 'pot', 'scissors', 'screw', 'spoon'];
-        this.bin_image['binYellow'] = ['bag', 'bottle2', 'chips', 'cleaning', 'crumpled_botle', 'cup', 'packing', 'soap', 'toothpaste', 'yogurt'];
+        this.bin_image['binYellow'] = ['bag', 'bottle2', 'chips', 'cleaner', 'crumpled_botle', 'cup', 'packing', 'soap', 'toothpaste', 'yogurt'];
         if (this.data.language === 'sk') {
             this.language_sk = true;
             this.language_en = false;
@@ -205,7 +208,6 @@ export class GameFor2 extends Phaser.Scene{
             this.language_sk = false;
             this.language_en = true;
         }
-        this.shouldDrawText = this.data.labels === true;
         this.hardObject = this.data.difficulty !== 'easy';
     }
 
@@ -234,15 +236,15 @@ export class GameFor2 extends Phaser.Scene{
 
         // Vytvorenie časovača
         this.timer = new Timer();
-        this.timer.init(this, this.initialTime, true, () => {
+        this.timer.init(this, 'TimerBG', this.initialTime, true, () => {
             this.createGreenScreen(this);
         });
-
-        this.scorePlayer1 = new Score(this, this.cameras.main.width/7, this.language_sk)
-        this.scorePlayer2 = new Score(this, this.cameras.main.width, this.language_sk);
-
-        window.addEventListener('pointerup', (pointer) => this.handleMouseClick(pointer));
-
+        this.scorePlayer1 = new Score();
+        this.scorePlayer1.init(this, 'Wood', this.cameras.main.width/5, this.language_sk)
+        this.scorePlayer2 = new Score();
+        this.scorePlayer2.init(this, 'Wood', this.cameras.main.width, this.language_sk);
+      
+      window.addEventListener('pointerup', (pointer) => this.handleMouseClick(pointer));
     }
 
     createBinGroup(scene, bins, names_sk, start, end, step, positionCalculator) {
@@ -252,7 +254,7 @@ export class GameFor2 extends Phaser.Scene{
         for (let i = start; i < end; i += step) {
             const {positionArray, xText, yText} = positionCalculator(scene, i, counter);
 
-            if (this.shouldDrawText) {
+            if (!this.hardObject) {
                 this.drawText(scene, xText, yText, names_sk[bin]);
             }
 
@@ -312,52 +314,73 @@ export class GameFor2 extends Phaser.Scene{
 
     // Funkcia na vytvorenie zelenej obrazovky
     createGreenScreen(scene) {
+        // Vytvorenie tmavšej zelenej obrazovky
         this.greenScreen = scene.add.rectangle(
             scene.cameras.main.width / 2,
             scene.cameras.main.height / 2,
             scene.cameras.main.width,
             scene.cameras.main.height,
-            0x00ff00
+            0x006400 // Tmavozelená farba
         );
-        this.greenScreen.setDepth(1000);
+
+        this.greenScreen.setDepth(999);
         this.greenScreen.setVisible(true);
         this.greenScreen.setInteractive();
+
+        // Získanie správy pre skóre
+        const message = this.getScoreMessage();
+
+        // Vytvorenie bieleho textu v strede obrazovky
+        const scoreText = scene.add.text(
+            scene.cameras.main.width / 2, // X pozícia (stred)
+            scene.cameras.main.height / 2, // Y pozícia (stred)
+            message, // Text na zobrazenie
+            {
+                fontSize: '32px', // Veľkosť písma
+                color: '#ffffff', // Biela farba textu
+                fontStyle: 'bold', // Tučný text
+                align: 'center'
+            }
+        );
+
+        scoreText.setOrigin(0.5); // Nastavenie, aby text bol centrovaný
+        scoreText.setDepth(1000); // Zabezpečí, že text je nad zelenou obrazovkou
+
+        // Obsluha kliknutia na zelenú obrazovku
         this.greenScreen.on('pointerdown', () => {
             this.resetGame(scene);
         });
     }
 
+// Pomocná funkcia na generovanie správ pre skóre
+    getScoreMessage() {
+        const player1Score = this.scorePlayer1.getScore();
+        const player2Score = this.scorePlayer2.getScore();
+
+        if (this.language_sk) {
+            if (player1Score > player2Score) {
+                return `Vyhral hráč 1 so skórom: ${player1Score}`;
+            } else if (player2Score > player1Score) {
+                return `Vyhral hráč 2 so skórom: ${player2Score}`;
+            } else {
+                return `Remíza`;
+            }
+        } else {
+            if (player1Score > player2Score) {
+                return `Winner is player 1 with score: ${player1Score}`;
+            } else if (player2Score > player1Score) {
+                return `Winner is player 2 with score: ${player2Score}`;
+            } else {
+                return `The game ended in a draw`;
+            }
+        }
+    }
+
+
+
     //funkcia na resetovanie hry
     resetGame(scene) {
-        // Skrytie zelenej obrazovky
-        if (this.greenScreen) {
-            this.greenScreen.setVisible(false);
-        }
-
-        // Resetovanie časovača
-        if (this.timer) {
-            this.timer.reset(initialTime); // Reset existujúceho časovača
-        } else {
-            this.timer = new Timer();
-            this.timer.init(scene, initialTime, true, () => {
-                createGreenScreen(scene); // Callback pri vypršaní časovača
-            });
-        }
-
-        // Zničenie starého odpadu laveho
-        this.waste_left.destroy();
-        this.waste_left = null;
-        console.log('som tu');
-
-        // Vytvorenie nového odpadu
-        this.waste_left = new Waste(scene, scene.cameras.main.width / 4, scene.cameras.main.height / 4, true, hardObject);
-
-        // Zničenie starého odpadu praveho
-        this.waste_right.destroy();
-        this.waste_right = null;
-
-        // Vytvorenie nového odpadu
-        this.waste_right = new Waste(scene, 3*scene.cameras.main.width / 4, scene.cameras.main.height / 4, true, hardObject);
+        window.location.reload();
     }
 
     //Funkcia na vykreslenie stredovej čiary
@@ -377,7 +400,7 @@ export class GameFor2 extends Phaser.Scene{
             x,
             y,
             name, // Názov kontajnera
-            { fontSize: '20px', fill: '#fff', fontFamily: 'Arial', align: 'center' } // Štýl textu
+            { fontSize: '20px', fill: '#000', fontFamily: 'Comic Sans MS',stroke: '#fff', strokeThickness: 4, align: 'center' }
         );
         text.setOrigin(0.5, 0.5);
         text.setDepth(1);

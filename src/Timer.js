@@ -1,57 +1,57 @@
 export class Timer extends Phaser.Scene {
-    constructor(imageKey) {
+
+    constructor() {
         super({ key: 'Timer' });
 
         this.imageKey = imageKey;
     }
 
-    init(scene, timeInSeconds, forTwo, onCompleteCallback) {
-        this.scene = scene;
+    init(parentScene, image, timeInSeconds, forTwo, onCompleteCallback) {
+        this.parentScene = parentScene; // Neprepisujeme `this.scene`
         this.timeLeft = timeInSeconds;
         this.onCompleteCallback = onCompleteCallback;
+        this.image = image;
+
         let squareSize = 50;
         let margin = 20;
 
         if (forTwo) {
-            this.createBackground(this.scene.cameras.main.width / 2 + squareSize + margin, squareSize, margin);
+
+            this.createBackground(this.parentScene.cameras.main.width / 2 + squareSize + margin, squareSize, margin);
         } else {
-            this.createBackground(this.scene.cameras.main.width, squareSize, margin);
+            this.createBackground(this.parentScene.cameras.main.width, squareSize, margin);
         }
-        this.createText();
+
+        this.createText(margin);
         this.initializeEvent();
     }
 
-    preload() {
-        this.load.image('timerBackGround', 'images/timerBackground.png');
-
-    }
-
     createBackground(x, squareSize, margin) {
-        this.timerBackground = this.scene.add.image(
-            x - margin - squareSize,
-            squareSize / 2 + margin,
-            this.imageKey,
-            // squareSize,
-            // squareSize,
-            // 0x808080
-        );
-        this.timerBackground.setScale(0.25);
+    const POSITION_OFFSET = 2; // Controls vertical positioning
+    const backgroundX = x - margin - squareSize;
+    const backgroundY = POSITION_OFFSET * (squareSize / 2 + 2 * margin);
+
+    this.timerBackground = this.parentScene.add.image(backgroundX,
+                                                        backgroundY,
+                                                        this.image
+                                                    );
         this.timerBackground.setDepth(1);
+        this.timerBackground.setDisplaySize(squareSize * 2, squareSize * 2); // Zväčšenie 2x
     }
 
-    createText() {
-        this.timerText = this.scene.add.text(
+    createText(margin) {
+        this.timerText = this.parentScene.add.text(
             this.timerBackground.x,
-            this.timerBackground.y,
+            this.timerBackground.y + margin/2,
             this.formatTime(this.timeLeft),
-            { fontSize: '24px', fill: '#fff', fontFamily: 'Arial' }
+            { fontSize: '24px', fill: '#000', fontFamily: 'Arial' }
         );
         this.timerText.setOrigin(0.5, 0.5);
         this.timerText.setDepth(100);
     }
 
     initializeEvent() {
-        this.timerEvent = this.scene.time.addEvent({
+        this.timerEvent = this.parentScene.time.addEvent({
             delay: 1000,
             callback: this.updateTimer,
             callbackScope: this,
@@ -82,7 +82,7 @@ export class Timer extends Phaser.Scene {
         if (this.timerEvent) {
             this.timerEvent.remove(false);
         }
-        this.timerEvent = this.scene.time.addEvent({
+        this.timerEvent = this.parentScene.time.addEvent({
             delay: 1000,
             callback: this.updateTimer,
             callbackScope: this,
