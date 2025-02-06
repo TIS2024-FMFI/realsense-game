@@ -8,8 +8,9 @@ import { Score } from "./Score.js";
 import { PlayerScene } from './ConfigScenes/PlayerScene.js';
 import { LanguageScene } from './ConfigScenes/LanguageScene.js';
 import { DifficultyScene } from "./ConfigScenes/DifficultyScene.js";
+import Ball from './Ball.js'; // Import the Ball class
 
-
+const targets = [];
 const config = {
     type: Phaser.AUTO,
     width: window.innerWidth,
@@ -114,11 +115,13 @@ export class Game extends Phaser.Scene{
     score;
     camera;
     powerBar;
+    balls = [];
     waste;
     target_bin = {};
     bin_image ={};
     bins = ['binYellow', 'binBlue', 'binGreen', 'binRed', 'binBrown', 'binBlack'];
     targets = [];
+    containers = [];
 
 
     constructor() {
@@ -221,8 +224,27 @@ export class Game extends Phaser.Scene{
 
     create() {
         this.room = new Room();
-        this.room.init(this);
-        if (this.easyGame||this.mediumGame) {
+        this.room.init(this, []);
+        if(!this.camera){
+            this.powerBar=new PowerBar();
+            this.powerBar.init(
+                this,
+                this.cameras.main.width / 2,
+                50,
+                this.cameras.main.width * 0.6,
+                20
+            );
+
+            this.input.on('pointerdown', () => {
+                this.powerBar.start();
+            });
+
+            this.input.on('pointerup', () => {
+                this.powerBar.stop();
+            });
+        }
+
+        if (this.easyGame) {
             this.createContainers(this, 3, 13, 3);
         } else {
             this.createContainers(this, 2, 14, 2);
@@ -230,13 +252,13 @@ export class Game extends Phaser.Scene{
 
         this.waste = new Waste(this, this.cameras.main.width / 2, this.cameras.main.height / 4, this.easyGame, this.mediumGame);
 
-        this.timer = new Timer();
-        this.timer.init(this, 'TimerBG', this.initialTime, false, () => {
+        this.room.targets = this.targets;
+        this.timer = new Timer('timerBackGround');
+        this.timer.init(this, this.initialTime, false, () => {
             this.createGreenScreen(this);
         });
 
-        this.score = new Score();
-        this.score.init(this, 'Wood', this.cameras.main.width, this.language_sk);
+        this.score = new Score(this, this.cameras.main.width, this.language_sk);
     }
 
     createContainers(scene, from, to, plus) {
@@ -256,13 +278,21 @@ export class Game extends Phaser.Scene{
             const container = new Container(scene, positionArray[0], positionArray[1], positionArray[2], this.bins[bin]);
 
             container.binImage.setDepth(0);
+            const offsetTarget = 1.6;
+            const target = new Target(scene, positionArray[0] + 0.01, positionArray[1], positionArray[2], 'target');
 
-            let target = new Target(scene, positionArray[0] + 0.01, positionArray[1], positionArray[2], 'target');
-            this.target_bin[target]=this.bins[bin];
+            // Correctly map the target to the bin
+            this.target_bin[target] = this.bins[bin];
+            console.log("Mapped target:", target, "to bin:", this.bins[bin]); // Debugging
+
+            target.targetImage.setDepth(0);
+
+            target.targetType = 'trash';
             this.targets.push(target);
             bin++;
-        }
 
+            this.containers.push(container);
+        }
     }
 
     createGreenScreen(scene) {
@@ -302,8 +332,48 @@ export class Game extends Phaser.Scene{
     }
 
     update(time, delta) {
-        if (this.powerBar) {
-            this.powerBar.update(delta);
+        this.balls.forEach((ball, ballIndex) => {
+            // Check if the ball has finished moving
+            if (ball.hasFinishedMoving()) {
+                console.log("BALL", ball);
+                this.checkBallTargetCollision(ball, ballIndex); // Check for collision
+            }
+        });
+    }
+
+    checkBallTargetCollision(ball, ballIndex) {
+        const hitThreshold = 20; // Adjust based on your target and ball sizes
+        let hit = false;
+
+        this.targets.forEach((target, targetIndex) => {
+            // Calculate the distance between the ball and the target
+            const distance = Phaser.Math.Distance.Between(
+                ball.sprite.x,
+                ball.sprite.y,
+                target.targetImage.x,
+                target.targetImage.y
+            );
+
+            if (distance <= hitThreshold) {
+                console.log(`Ball hit target at (${target.targetImage.x}, ${target.targetImage.y})!`);
+
+                // Handle the collision
+                this.handleCollision(ball, target, targetIndex);
+            }
+        });
+
+        ball.sprite.destroy();
+        this.balls.splice(ballIndex, 1);
+    }
+
+    handleCollision(ball, target, targetIndex) {
+        if (ball.sprite && ball.sprite.destroy) {
+            ball.sprite.destroy();
+        }
+        if (target.targetType === 'trash') {
+            this.handleTrashHit(target, targetIndex);
+        } else {
+            this.handleRegularHit(target, targetIndex);
         }
     }
 
@@ -325,18 +395,59 @@ export class Game extends Phaser.Scene{
         window.location.reload();
     }
 
-    wasteInRightBin(waste, target){
-        const targetBinColor = this.target_bin[target];
+    handleMouseClick(data) {
+        const parabolaMouse = {
+            a: -0.0005,  // Controls the curvature
+            b: 4,    // Controls the initial upward/forward velocity
+            c: data.y,   // Small vertical offset for realism
+            x: data.x,
+            y: data.y,
+            avgX: 0,  // Default for horizontal average (adjust if needed)
+        }
+
+        parabolaMouse.z = 0;
+        const ball = new Ball(this, parabolaMouse.x, parabolaMouse.y, parabolaMouse.z, 'ball', parabolaMouse.avgX, this.targets);
+        ball.moveAlongParabola(parabolaMouse.a, parabolaMouse.b, parabolaMouse.c, parabolaMouse.z, 15, 1, 1);
+        this.balls.push(ball);
+        console.log(`Ball created at (${ball.x}, ${ball.y})`);
+        console.log(targets);
+        // this.wasteInRightBin(this.targets[0]);
+    }
+
+    handleRegularHit(target) {
+        console.log('Regular target hit!');
+        this.score.addScore(20); // Add appropriate points
+
+        // Additional logic for regular target hit
+        // e.g., play sound, spawn particles, etc.
+    }
+
+    handleTrashHit(target, targetIndex) {
+        console.log('Trash target hit!');
+        this.wasteInRightBin(target, targetIndex);
+    }
+
+    wasteInRightBin(target, targetIndex) {
+        const targetBinColor = this.bins[targetIndex];
+
+        console.log("Target:", target, "Mapped Bin Color:", targetBinColor); // Debugging
 
         if (targetBinColor) {
             const targetBinWastes = this.bin_image[targetBinColor];
+            console.log("Bin Wastes:", targetBinWastes);
 
-            if (this.bin_image[targetBinWastes].includes(waste.getImageKey())) {
+            const currentWasteKey = this.waste.getImageKey();
+            console.log("Current Waste Key:", currentWasteKey);
+
+            if (targetBinWastes.includes(currentWasteKey)) {
                 this.score.addScore(10);
+                this.waste.destroy();
                 this.waste.generateNew();
             } else {
                 this.score.addScore(-5);
             }
+        } else {
+            console.error("No bin mapping found for target:", target);
         }
     }
 

@@ -1,34 +1,53 @@
 export class Ball {
     constructor(scene, x, y, z, imageKey, wind) {
-        this.scene = scene; // Reference to the Phaser scene
-        this.x = x;         // X-coordinate
-        this.y = y;         // Y-coordinate
-        this.z = z;         // Z-coordinate
+        this.scene = scene;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.imageKey = imageKey;
         this.wind = wind;
-        this.imageKey = imageKey; // Key for the ball image
-        this.scale = 0.5;
+        this.scale = 0.3;
 
-        this.sprite = null; // Placeholder for the ball sprite
-        this.moving = false; // Track if the ball is currently moving
-        this.preload();     // Load the ball image
-        this.create();      // Draw the ball at the initial position
+        this.sprite = null;
+        this.moving = false;
+
+
+
+        this.initialize();
     }
 
-    preload() {
-        // Load the image if not already loaded
+    /**
+     * Initialize the ball by preloading assets and creating the sprite.
+     */
+    initialize() {
+        this.preloadImage();
+        this.createSprite();
+    }
+
+    /**
+     * Preload the ball image if it isn't already loaded.
+     */
+    preloadImage() {
         if (!this.scene.textures.exists(this.imageKey)) {
             this.scene.load.image(this.imageKey, 'images/ball2.png');
-            this.scene.load.start(); // Trigger the preload to begin
+            this.scene.load.start();
         }
     }
 
-    create() {
-        // Draw the ball image at the specified (x, y) position
+    /**
+     * Create the ball sprite and set its initial position.
+     */
+    createSprite() {
         this.sprite = this.scene.add.image(this.x, this.y, this.imageKey);
+        this.sprite.setScale(this.scale);
     }
 
+    /**
+     * Update the position of the ball.
+     * @param {number} x - New X-coordinate.
+     * @param {number} y - New Y-coordinate.
+     */
     setPosition(x, y) {
-        // Update the position of the ball
         this.x = x;
         this.y = y;
         if (this.sprite) {
@@ -36,70 +55,89 @@ export class Ball {
         }
     }
 
+    /**
+     * Reset the ball's state by stopping its movement.
+     */
     reset() {
-        // Stop movement and destroy the ball
         this.moving = false;
-        if (this.sprite) {
-            this.sprite.destroy();
-            this.sprite = null;
-        }
     }
 
-    moveAlongParabola(a, b, c, startZ, endZ, step = 1, speed = 50) {
-        /**
-         * Moves the ball along the parabola y = a * z^2 + b * z + c
-         * in the z-y plane.
-         *
-         * @param {number} a - Parabola coefficient for z^2.
-         * @param {number} b - Parabola coefficient for z.
-         * @param {number} c - Constant coefficient.
-         * @param {number} startZ - Starting z position.
-         * @param {number} endZ - Ending z position.
-         * @param {number} step - Step size for z increments.
-         * @param {number} speed - Delay (in ms) between updates.
-         */
+    /**
+     * Check if the ball has finished moving.
+     * @returns {boolean} - True if the ball is not moving.
+     */
+    hasFinishedMoving() {
+        return !this.moving;
+    }
 
-        if (this.moving) {
-            return; // Prevent re-triggering movement while already moving
-        }
+    /**
+     * Move the ball along a parabolic trajectory.
+     * @param {number} a - Parabola coefficient for z^2.
+     * @param {number} b - Parabola coefficient for z.
+     * @param {number} c - Constant coefficient.
+     * @param {number} startZ - Starting z position.
+     * @param {number} endZ - Ending z position.
+     * @param {number} step - Step size for z increments.
+     * @param {number} speed - Delay (in ms) between updates.
+     */
+    moveAlongParabola(a, b, c, startZ, endZ, step = 0.5, speed = 50) {
+        if (this.moving) return;
 
-        this.moving = true; // Mark the ball as moving
-        let currentZ = startZ; // Independent z variable for this ball
+        this.moving = true;
+        let currentZ = startZ;
 
-        const moveStep = () => {
-            if (!this.moving || (step > 0 && currentZ > endZ) || (step < 0 && currentZ < endZ)) {
-                // Stop moving when the target is reached or ball is reset
+        const updatePosition = () => {
+            if (this.shouldStopMoving(currentZ, endZ, step)) {
                 this.moving = false;
-
-                // Destroy the ball once it reaches its destination
-                if (this.sprite) {
-                    this.sprite.destroy();
-                    this.sprite = null;
-                }
-
                 return;
             }
 
-            // Calculate the new y position based on the parabola equation
-            const y = a * currentZ ** 2 + b * currentZ + c;
-            const x = this.x + this.wind;
-            // Shrink the ball progressively by reducing its scale
-            this.scale = this.scale * 0.95; // Prevent shrinking below 0.1
-
-            this.sprite.setScale(this.scale, this.scale); // Update the ball's scale
-            // Update the ball's position
-            this.setPosition(x, y);
-
-            // Increment z for the next step
+            this.updateBallPosition(a, b, c, currentZ);
             currentZ += step;
 
-            // Schedule the next step
-            this.scene.time.delayedCall(speed, moveStep);
+            this.scene.time.delayedCall(speed, updatePosition);
         };
 
-        // Start the movement
-        moveStep();
+        updatePosition();
     }
+
+    /**
+     * Determine if the ball should stop moving.
+     * @param {number} currentZ - Current z position.
+     * @param {number} endZ - Ending z position.
+     * @param {number} step - Step size for z increments.
+     * @returns {boolean} - True if the movement should stop.
+     */
+    shouldStopMoving(currentZ, endZ, step) {
+        return (step > 0 && currentZ > endZ) || (step < 0 && currentZ < endZ);
+    }
+
+
+
+    /**
+     * Update the ball's position and scale during movement.
+     * @param {number} a - Parabola coefficient for z^2.
+     * @param {number} b - Parabola coefficient for z.
+     * @param {number} c - Constant coefficient.
+     * @param {number} currentZ - Current z position.
+     */
+    updateBallPosition(a, b, c, currentZ) {
+        const y = a * currentZ ** 2 + b * currentZ + c;
+        const x = this.x + this.wind;
+        this.scale = Math.max(this.scale * 0.95, 0.1); // Prevent shrinking below 0.1
+
+        this.sprite.setScale(this.scale);
+        this.setPosition(x, y);
+    }
+
+    destroy() {
+        if (this.sprite) {
+            this.sprite.destroy();
+            this.sprite = null;
+            console.log("Ball sprite destroyed.");
+        }
+    }
+
 }
 
 export default Ball;
