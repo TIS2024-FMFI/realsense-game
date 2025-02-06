@@ -211,13 +211,13 @@ export class Game extends Phaser.Scene{
         // Set language flags
         this.language_sk = this.data.language === 'sk';
         this.language_en = this.data.language === 'en';
-        
+
         // Set difficulty flags
         const difficultyLevels = ['easy', 'medium', 'hard'];
         this.easyGame = this.data.difficulty === 'easy';
         this.mediumGame = this.data.difficulty === 'medium';
         this.hardGame = !difficultyLevels.includes(this.data.difficulty) || this.data.difficulty === 'hard';
-
+    }
 
     create() {
         this.room = new Room();
