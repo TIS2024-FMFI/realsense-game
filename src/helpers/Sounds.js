@@ -6,16 +6,17 @@ function startBackgroundMusic() {
     backgroundMusic.play().catch(error => console.log("Autoplay blocked:", error));
 }
 
-function playCorrectSound() {
+
+export function playCorrectSound() {
     const correctSound = new Audio("sounds/correct.mp3");
     correctSound.volume = 1;
-    correctSound.play();
+    correctSound.play().then(r => console.log("Correct sound played"));
 }
 
-function playIncorrectSound() {
+export function playIncorrectSound() {
     const incorrectSound = new Audio("sounds/incorrect.mp3");
     incorrectSound.volume = 1;
-    incorrectSound.play();
+    incorrectSound.play().then(r => console.log("Incorrect sound played"));
 }
 
 document.addEventListener("click", startBackgroundMusic, { once: true });

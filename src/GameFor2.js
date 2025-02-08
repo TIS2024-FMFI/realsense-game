@@ -8,7 +8,8 @@ import { Score } from "./Score.js";
 import { PlayerScene } from './ConfigScenes/PlayerScene.js';
 import { LanguageScene } from './ConfigScenes/LanguageScene.js';
 import { DifficultyScene } from "./ConfigScenes/DifficultyScene.js";
-import Ball from './Ball.js'; // Import the Ball class
+import Ball from './Ball.js';
+import {playCorrectSound, playIncorrectSound} from "./helpers/Sounds.js";
 
 const config = {
     type: Phaser.AUTO,
@@ -514,8 +515,10 @@ export class GameFor2 extends Phaser.Scene{
                 this.scorePlayer2.addScore(10);
                 this.waste_right.destroy();
                 this.waste_right.generateNew();
+                playCorrectSound();
             } else {
                 this.scorePlayer2.addScore(-5);
+                playIncorrectSound();
             }
         }
     }
@@ -528,8 +531,10 @@ export class GameFor2 extends Phaser.Scene{
                 this.scorePlayer1.addScore(10);
                 this.waste_left.destroy();
                 this.waste_left.generateNew();
+                playCorrectSound();
             } else {
                 this.scorePlayer1.addScore(-5);
+                playIncorrectSound();
             }
         }
     }
