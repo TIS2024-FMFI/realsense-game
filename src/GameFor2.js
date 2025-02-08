@@ -98,7 +98,7 @@ function preload() {
 }
 
 export class GameFor2 extends Phaser.Scene{
-    initialTime = 10;
+    initialTime = 120;
     hardObject = true;
 
     language_sk = true;    // Podmienka na vykreslenie slovenského textu
