@@ -8,7 +8,6 @@ import { Score } from "./Score.js";
 import { PlayerScene } from './ConfigScenes/PlayerScene.js';
 import { LanguageScene } from './ConfigScenes/LanguageScene.js';
 import { DifficultyScene } from "./ConfigScenes/DifficultyScene.js";
-import Ball from './Ball.js';
 import {ConfigScene} from "./ConfigScenes/ConfigScene.js"; // Import the Ball class
 import Ball from './Ball.js'; // Import the Ball class
 
@@ -105,7 +104,7 @@ function preload() {
 
 
 export class Game extends Phaser.Scene{
-    initialTime = 10;
+    initialTime = 120;
     room;
     easyGame = false;
     mediumGame = true;
@@ -210,7 +209,7 @@ export class Game extends Phaser.Scene{
         this.bin_image['binBrown'] = ['apple', 'apple2', 'banana', 'beet', 'bread', 'egg', 'flower', 'leaves', 'orange', 'tea'];
         this.bin_image['binGreen'] = ['bottle', 'broken_bottle', 'glass', 'glass2', 'glasses', 'jug', 'mirror', 'parfume', 'shards', 'glass3'];
         this.bin_image['binRed'] = ['buckle', 'can', 'can2', 'foil', 'fork', 'key', 'pot', 'scissors', 'screw', 'spoon'];
-        this.bin_image['binYellow'] = ['bag', 'bottle2', 'chips', 'cleaner', 'crumpled_botle', 'cup', 'packing', 'soap', 'toothpaste', 'yogurt'];
+        this.bin_image['binYellow'] = ['bag', 'bottle2', 'chips', 'cleaner', 'crumpled_bottle', 'cup', 'packing', 'soap', 'toothpaste', 'yogurt'];
 
         // Set language flags
         this.language_sk = this.data.language === 'sk';
@@ -329,7 +328,7 @@ export class Game extends Phaser.Scene{
     }
 
     checkBallTargetCollision(ball, ballIndex) {
-        const hitThreshold = 20; // Adjust based on your target and ball sizes
+        const hitThreshold = 80; // Adjust based on your target and ball sizes
         let hit = false;
 
         this.targets.forEach((target, targetIndex) => {

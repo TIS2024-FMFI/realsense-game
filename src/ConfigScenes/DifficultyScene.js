@@ -17,13 +17,6 @@ export class DifficultyScene extends Phaser.Scene {
         this.data = data;
     }
 
-    preload() {
-        this.load.image('easy', 'images/Configuration/Difficulty/easy.png');
-        this.load.image('medium', 'images/Configuration/Difficulty/medium.png');
-        this.load.image('hard', 'images/Configuration/Difficulty/hard.png');
-
-    }
-
     create() {
         this.initData();
         this.createAnim();
@@ -103,7 +96,6 @@ export class DifficultyScene extends Phaser.Scene {
         for (let i = 0; i < number; i++){
             //Fill panel Background
             graphics.fillStyle(this.colors[i], 1);
-
             graphics.fillRect(i*width/number, 0, width/number, height);
 
             let horizontalOffset = i*width/number + (width/number / 2);
@@ -119,3 +111,4 @@ export class DifficultyScene extends Phaser.Scene {
         }
     }
 }
+
