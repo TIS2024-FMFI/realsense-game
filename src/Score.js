@@ -3,25 +3,21 @@ export class Score extends Phaser.Scene {
         super({ key: 'Score' });
     }
     init(scene, image, x, language) {
-        this.scene = scene; // Odkaz na scénu
-        this.x = x; // Pozícia X
-        this.scorePoints = 0; // Inicializácia skóre
+        this.scene = scene;
+        this.x = x;
+        this.scorePoints = 0;
         this.language_sk = language;
         this.image = image;
-
-        // Konfigurácie pre pozadie a text
         let squareSizeWidth = 150;
         let squareSizeHeight = 50;
         let margin = 20;
 
         this.createBackground(x, squareSizeWidth, squareSizeHeight, margin);
-        this.createText(); // Vytvorenie textu
+        this.createText();
     }
 
-    // Vytvorí pozadie skóre
     createBackground(x, squareSizeWidth, squareSizeHeight, margin) {
         const POSITION_OFFSET = 2;
-        console.log(this.scene);
         const backgroundX = x - POSITION_OFFSET * margin - (squareSizeWidth - squareSizeHeight);
         const backgroundY = squareSizeHeight / 2 + margin;
         this.scoreBackground = this.scene.add.image(
@@ -33,36 +29,28 @@ export class Score extends Phaser.Scene {
         this.scoreBackground.setDisplaySize(squareSizeWidth * 2, squareSizeHeight * 2); // Zväčšenie 2x
     }
 
-    // Vytvorí text pre skóre
     createText() {
         this.scoreText = this.scene.add.text(
             this.scoreBackground.x,
             this.scoreBackground.y,
-            this.formatScoreText(), // Formátovaný text
+            this.formatScoreText(),
             { fontSize: '24px', fill: '#000', fontFamily: 'Arial' }
         );
         this.scoreText.setOrigin(0.5, 0.5);
         this.scoreText.setDepth(100);
     }
 
-    // Pridanie bodov do skóre
     addScore(points) {
-        this.scorePoints += points; // Zvýšenie skóre
-        this.updateText(); // Aktualizácia zobrazenia textu
+        this.scorePoints += points;
+        this.updateText();
     }
 
-    // Aktualizuje text na obrazovke
     updateText() {
         this.scoreText.setText(this.formatScoreText());
     }
 
-    // Formátuje text pre skóre
     formatScoreText() {
-        if (this.language_sk){
-            return `Skóre: ${this.scorePoints}`; // Text vo formáte "Skore: X"
-        }else{
-            return `Score: ${this.scorePoints}`; // Text vo formáte "Score: X"
-        }
+        return `${this.language_sk ? "Skóre" : "Score"}: ${this.scorePoints}`;
     }
 
     getScore(){

@@ -8,8 +8,8 @@ import { Score } from "./Score.js";
 import { PlayerScene } from './ConfigScenes/PlayerScene.js';
 import { LanguageScene } from './ConfigScenes/LanguageScene.js';
 import { DifficultyScene } from "./ConfigScenes/DifficultyScene.js";
-import {ConfigScene} from "./ConfigScenes/ConfigScene.js"; // Import the Ball class
-import Ball from './Ball.js'; // Import the Ball class
+import {ConfigScene} from "./ConfigScenes/ConfigScene.js";
+import Ball from './Ball.js';
 
 const targets = [];
 const config = {
@@ -252,37 +252,29 @@ export class Game extends Phaser.Scene{
         const names_sk = ["Plast", "Papier", "Sklo", "Kov", "Bioodpad", "Komunálny\nodpad"];
         const names_en = ["Plastic", "Paper", "Glass", "Metal", "Bio\nwaste", "Municipal\nwaste"];
         for (let i = from; i < to; i += plus) {
-            const positionArray = [i / 10 + 0.05, 0.2, 100]; // x, y, z
-            if(!this.hardGame){
-                if (this.language_sk) {
-                    this.drawText(scene, positionArray[0], positionArray[1], names_sk[bin]);
-                } else if (this.language_en) {
-                    this.drawText(scene, positionArray[0], positionArray[1], names_en[bin]);
-                }
+            const [x, y, z] = [i / 10 + 0.05, 0.2, 100];
+            if (!this.hardGame) {
+                const name = this.language_sk ? names_sk[bin] : this.language_en ? names_en[bin] : null;
+                if (name) this.drawText(scene, x, y, name);
             }
 
-            const container = new Container(scene, positionArray[0], positionArray[1], positionArray[2], this.bins[bin]);
+            const container = new Container(scene, x, y, z, this.bins[bin]);
 
             container.binImage.setDepth(0);
+            this.containers.push(container);
             const offsetTarget = 1.6;
-            const target = new Target(scene, positionArray[0] + 0.01, positionArray[1], positionArray[2], 'target');
+            const target = new Target(scene, x + 0.01, y, z, 'target');
 
             // Correctly map the target to the bin
             this.target_bin[target] = this.bins[bin];
-            console.log("Mapped target:", target, "to bin:", this.bins[bin]); // Debugging
-
             target.targetImage.setDepth(0);
-
             target.targetType = 'trash';
             this.targets.push(target);
             bin++;
-
-            this.containers.push(container);
         }
     }
 
     createGreenScreen(scene) {
-        // Vytvorenie tmavšej zelenej obrazovky
         this.greenScreen = scene.add.rectangle(
             scene.cameras.main.width / 2,
             scene.cameras.main.height / 2,
@@ -295,23 +287,21 @@ export class Game extends Phaser.Scene{
         this.greenScreen.setVisible(true);
         this.greenScreen.setInteractive();
 
-        // Vytvorenie bieleho textu v strede obrazovky
         const scoreText = scene.add.text(
-            scene.cameras.main.width / 2, // X pozícia (stred)
-            scene.cameras.main.height / 2, // Y pozícia (stred)
-            `SCORE: ${this.score.getScore()}`, // Text na zobrazenie
+            scene.cameras.main.width / 2, // X position (middle)
+            scene.cameras.main.height / 2, // Y position (middle)
+            `SCORE: ${this.score.getScore()}`, // Text
             {
-                fontSize: '32px', // Veľkosť písma
-                color: '#ffffff', // Biela farba textu
-                fontStyle: 'bold', // Tučný text
+                fontSize: '32px',
+                color: '#ffffff',
+                fontStyle: 'bold',
                 align: 'center'
             }
         );
 
-        scoreText.setOrigin(0.5); // Nastavenie, aby text bol centrovaný
-        scoreText.setDepth(1000); // Zabezpečí, že text je nad zelenou obrazovkou
+        scoreText.setOrigin(0.5);
+        scoreText.setDepth(1000);
 
-        // Obsluha kliknutia na zelenú obrazovku
         this.greenScreen.on('pointerdown', () => {
             this.resetGame(scene);
         });
@@ -321,7 +311,6 @@ export class Game extends Phaser.Scene{
         this.balls.forEach((ball, ballIndex) => {
             // Check if the ball has finished moving
             if (ball.hasFinishedMoving()) {
-                console.log("BALL", ball);
                 this.checkBallTargetCollision(ball, ballIndex); // Check for collision
             }
         });
@@ -377,7 +366,6 @@ export class Game extends Phaser.Scene{
     }
 
     resetGame(scene) {
-        // Obnoví stránku (refresh browseru)
         window.location.reload();
     }
 
@@ -396,16 +384,12 @@ export class Game extends Phaser.Scene{
         ball.moveAlongParabola(parabolaMouse.a, parabolaMouse.b, parabolaMouse.c, parabolaMouse.z, 15, 1, 1);
         this.balls.push(ball);
         console.log(`Ball created at (${ball.x}, ${ball.y})`);
-        console.log(targets);
         // this.wasteInRightBin(this.targets[0]);
     }
 
     handleRegularHit(target) {
         console.log('Regular target hit!');
-        this.score.addScore(20); // Add appropriate points
-
-        // Additional logic for regular target hit
-        // e.g., play sound, spawn particles, etc.
+        this.score.addScore(20);
     }
 
     handleTrashHit(target, targetIndex) {
@@ -415,8 +399,6 @@ export class Game extends Phaser.Scene{
 
     wasteInRightBin(target, targetIndex) {
         const targetBinColor = this.bins[targetIndex];
-
-        console.log("Target:", target, "Mapped Bin Color:", targetBinColor); // Debugging
 
         if (targetBinColor) {
             const targetBinWastes = this.bin_image[targetBinColor];
@@ -438,11 +420,3 @@ export class Game extends Phaser.Scene{
     }
 
 }
-/*
-// Resize game on window resize
-window.addEventListener('resize', () => {
-    game.scale.resize(window.innerWidth, window.innerHeight);
-});
-
-
- */

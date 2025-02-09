@@ -8,7 +8,7 @@ import { Score } from "./Score.js";
 import { PlayerScene } from './ConfigScenes/PlayerScene.js';
 import { LanguageScene } from './ConfigScenes/LanguageScene.js';
 import { DifficultyScene } from "./ConfigScenes/DifficultyScene.js";
-import Ball from './Ball.js'; // Import the Ball class
+import Ball from './Ball.js';
 
 const config = {
     type: Phaser.AUTO,
@@ -100,9 +100,8 @@ function preload() {
 export class GameFor2 extends Phaser.Scene{
     initialTime = 120;
     hardObject = true;
-
-    language_sk = true;    // Podmienka na vykreslenie slovenského textu
-    language_en = false;     // Podmienka na vykreslenie anglického textu
+    language_sk = true;
+    language_en = false;
     greenScreen;
     timer;
     scorePlayer1;
@@ -201,13 +200,10 @@ export class GameFor2 extends Phaser.Scene{
         this.bin_image['binGreen'] = ['bottle', 'broken_bottle', 'glass', 'glass2', 'glasses', 'jug', 'mirror', 'parfume', 'shards', 'glass3'];
         this.bin_image['binRed'] = ['buckle', 'can', 'can2', 'foil', 'fork', 'key', 'pot', 'scissors', 'screw', 'spoon'];
         this.bin_image['binYellow'] = ['bag', 'bottle2', 'chips', 'cleaner', 'crumpled_botle', 'cup', 'packing', 'soap', 'toothpaste', 'yogurt'];
-        if (this.data.language === 'sk') {
-            this.language_sk = true;
-            this.language_en = false;
-        } else if (this.data.language === 'en') {
-            this.language_sk = false;
-            this.language_en = true;
-        }
+        // Set language flags
+        this.language_sk = this.data.language === 'sk';
+        this.language_en = this.data.language === 'en';
+        // Set difficulty flags
         this.hardObject = this.data.difficulty !== 'easy';
     }
 
@@ -217,7 +213,6 @@ export class GameFor2 extends Phaser.Scene{
 
         this.createMiddleLine(this);                     // vytvorenie stredovej oddeľovacej čiary
 
-        //vytváranie odpadu
         this.waste_left = new Waste(this, this.cameras.main.width / 4, this.cameras.main.height / 4, true, this.hardObject);
         this.waste_right = new Waste(this, 3*this.cameras.main.width / 4, this.cameras.main.height / 4, true, this.hardObject);
 
@@ -225,16 +220,11 @@ export class GameFor2 extends Phaser.Scene{
         const names_sk = ["Plast", "Papier", "Sklo", "Kov"];
         const names_en = ["Plastic", "Paper", "Glass", "Metal"];
 
-        //vytváranie odapadu
-        if(this.language_sk){
-            this.createBinGroup(this, bins, names_sk, 0.7, 7, 1.7, this.calculateFirstGroupPosition);
-            this.createBinGroup(this, bins, names_sk, 7.7, 13, 1.7, this.calculateSecondGroupPosition);
-        }else{
-            this.createBinGroup(this, bins, names_en, 0.7, 7, 1.7, this.calculateFirstGroupPosition);
-            this.createBinGroup(this, bins, names_en, 7.7, 13, 1.7, this.calculateSecondGroupPosition);
-        }
+        const names = this.language_sk ? names_sk : names_en;
 
-        // Vytvorenie časovača
+        this.createBinGroup(this, bins, names, 0.7, 7, 1.7, this.calculateFirstGroupPosition);
+        this.createBinGroup(this, bins, names, 7.7, 13, 1.7, this.calculateSecondGroupPosition);
+
         this.timer = new Timer();
         this.timer.init(this, 'TimerBG', this.initialTime, true, () => {
             this.createGreenScreen(this);
@@ -271,8 +261,6 @@ export class GameFor2 extends Phaser.Scene{
         }
     }
 
-
-    //kalkulacia pozicie lavej skupiny kontajnerov
     calculateFirstGroupPosition(scene, i, counter) {
         let positionArray, xText, yText;
 
@@ -291,7 +279,6 @@ export class GameFor2 extends Phaser.Scene{
         }
         return { positionArray, xText, yText };
     }
-//kalkulacia pozicie pravej skupiny kontajnerov
     calculateSecondGroupPosition(scene, i, counter) {
         let positionArray, xText, yText;
 
@@ -312,47 +299,41 @@ export class GameFor2 extends Phaser.Scene{
         return { positionArray, xText, yText };
     }
 
-    // Funkcia na vytvorenie zelenej obrazovky
     createGreenScreen(scene) {
-        // Vytvorenie tmavšej zelenej obrazovky
         this.greenScreen = scene.add.rectangle(
             scene.cameras.main.width / 2,
             scene.cameras.main.height / 2,
             scene.cameras.main.width,
             scene.cameras.main.height,
-            0x006400 // Tmavozelená farba
+            0x006400
         );
 
         this.greenScreen.setDepth(999);
         this.greenScreen.setVisible(true);
         this.greenScreen.setInteractive();
 
-        // Získanie správy pre skóre
         const message = this.getScoreMessage();
 
-        // Vytvorenie bieleho textu v strede obrazovky
         const scoreText = scene.add.text(
-            scene.cameras.main.width / 2, // X pozícia (stred)
-            scene.cameras.main.height / 2, // Y pozícia (stred)
-            message, // Text na zobrazenie
+            scene.cameras.main.width / 2,
+            scene.cameras.main.height / 2,
+            message,
             {
-                fontSize: '32px', // Veľkosť písma
-                color: '#ffffff', // Biela farba textu
-                fontStyle: 'bold', // Tučný text
+                fontSize: '32px',
+                color: '#ffffff',
+                fontStyle: 'bold',
                 align: 'center'
             }
         );
 
-        scoreText.setOrigin(0.5); // Nastavenie, aby text bol centrovaný
-        scoreText.setDepth(1000); // Zabezpečí, že text je nad zelenou obrazovkou
+        scoreText.setOrigin(0.5);
+        scoreText.setDepth(1000);
 
-        // Obsluha kliknutia na zelenú obrazovku
         this.greenScreen.on('pointerdown', () => {
             this.resetGame(scene);
         });
     }
 
-// Pomocná funkcia na generovanie správ pre skóre
     getScoreMessage() {
         const player1Score = this.scorePlayer1.getScore();
         const player2Score = this.scorePlayer2.getScore();
@@ -376,14 +357,10 @@ export class GameFor2 extends Phaser.Scene{
         }
     }
 
-
-
-    //funkcia na resetovanie hry
     resetGame(scene) {
         window.location.reload();
     }
 
-    //Funkcia na vykreslenie stredovej čiary
     createMiddleLine(scene) {
         const verticalLine = scene.add.graphics();
         verticalLine.lineStyle(10, 0x000000, 1);
@@ -394,7 +371,6 @@ export class GameFor2 extends Phaser.Scene{
         verticalLine.strokePath();
     }
 
-    //Funkcia na vykreslenie textu
     drawText(scene, x, y, name) {
         const text = scene.add.text(
             x,
@@ -405,30 +381,6 @@ export class GameFor2 extends Phaser.Scene{
         text.setOrigin(0.5, 0.5);
         text.setDepth(1);
     }
-
-    // wasteInRightBin(waste, target, side){
-    //     const targetBinColor = this.target_bin[target];
-    //
-    //     if (targetBinColor) {
-    //         const targetBinWastes = this.bin_image[targetBinColor];
-    //
-    //         if (this.bin_image[targetBinWastes].includes(waste.getImageKey())) {
-    //             if(side === 'left'){
-    //                 this.scorePlayer1.addScore(10);
-    //                 this.waste_left.generateNew();
-    //             }else{
-    //                 this.scorePlayer2.addScore(10);
-    //                 this.waste_right.generateNew();
-    //             }
-    //         } else {
-    //             if(side === 'left'){
-    //                 this.scorePlayer1.addScore(-5);
-    //             }else{
-    //                 this.scorePlayer2.addScore(-5);
-    //             }
-    //         }
-    //     }
-    // }
 
     handleMouseClick(data) {
         let thrownBy = data.x < this.cameras.main.width / 2 ? 'left' : 'right';
@@ -481,30 +433,6 @@ export class GameFor2 extends Phaser.Scene{
         }
     }
 
-    // wasteInRightBin(waste, target, side){
-    //     const targetBinColor = this.target_bin[target];
-    //
-    //     if (targetBinColor) {
-    //         const targetBinWastes = this.bin_image[targetBinColor];
-    //
-    //         if (targetBinWastes.includes(this.waste_left.getImageKey())) {
-    //             if(side === 'left'){
-    //                 this.scorePlayer1.addScore(10);
-    //                 this.waste_left.generateNew();
-    //             }else{
-    //                 this.scorePlayer2.addScore(10);
-    //                 this.waste_right.generateNew();
-    //             }
-    //         } else {
-    //             if(side === 'left'){
-    //                 this.scorePlayer1.addScore(-5);
-    //             }else{
-    //                 this.scorePlayer2.addScore(-5);
-    //             }
-    //         }
-    //     }
-    // }
-
     wasteInRightBin(target, targetIndex) {
         const targetBinColor = this.bins[targetIndex];
         if (targetBinColor) {
@@ -535,10 +463,3 @@ export class GameFor2 extends Phaser.Scene{
     }
 }
 
-/*
-// Resize the game when the window is resized
-window.addEventListener('resize', () => {
-    game.scale.resize(window.innerWidth, window.innerHeight);
-});
-
- */

@@ -16,7 +16,6 @@ export class Timer extends Phaser.Scene {
         let margin = 20;
 
         if (forTwo) {
-
             this.createBackground(this.parentScene.cameras.main.width / 2 + squareSize + margin, squareSize, margin);
         } else {
             this.createBackground(this.parentScene.cameras.main.width, squareSize, margin);
