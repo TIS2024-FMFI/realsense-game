@@ -44,6 +44,16 @@ export class ConfigScene extends Phaser.Scene {
             fill: '#ffffff',
         }).setOrigin(0.5);
 
+        // Manuál
+        let manualHorizontalOffset = width / 2;
+        let manualVerticalOffset = height / 2 + 240;
+        this.add.text(manualHorizontalOffset, manualVerticalOffset, LANGUAGES[this.data.language].manual, {
+            font: '20px Arial',
+            align: 'center',
+            fill: '#000000'
+        }).setOrigin(0.5);
+
+
         //pridanie animácie
         this.anims.create({
             key: 'pic_loading_anim',
