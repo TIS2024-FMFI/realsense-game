@@ -10,6 +10,7 @@ import { LanguageScene } from './ConfigScenes/LanguageScene.js';
 import { DifficultyScene } from "./ConfigScenes/DifficultyScene.js";
 import {ConfigScene} from "./ConfigScenes/ConfigScene.js";
 import Ball from './Ball.js';
+import {playCorrectSound, playIncorrectSound} from "./helpers/Sounds.js";
 
 const targets = [];
 const config = {
@@ -411,8 +412,11 @@ export class Game extends Phaser.Scene{
                 this.score.addScore(10);
                 this.waste.destroy();
                 this.waste.generateNew();
+                playCorrectSound();
+
             } else {
                 this.score.addScore(-5);
+                playIncorrectSound();
             }
         } else {
             console.error("No bin mapping found for target:", target);
