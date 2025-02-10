@@ -21,25 +21,13 @@ export class Container {
         const width = this.scene.cameras.main.width;
         const height = this.scene.cameras.main.height;
 
-        // Compute absolute positions
         this.x = this.relativeX * width;
         this.y = this.relativeY * height;
-
-        // Calculate projected positions
         const projectedX = perspectiveProjection([this.x, this.y, this.z], 0);
         const projectedY = height - (this.y + perspectiveProjection([this.x, this.y, this.z], 2));
-
-        // Create an image object at the projected position
         this.binImage = this.scene.add.image(projectedX, projectedY, this.imageKey);
-
-        // Set size relative to room size
-        //this.binImage.setDisplaySize(width * CONTAINER_WIDTH, height * CONTAINER_HEIGHT); // Width and height based on room size
         this.binImage.setDisplaySize(width * CONTAINER_WIDTH, height * CONTAINER_HEIGHT);
-
-        // Optionally set depth for the image to create a 3D effect
         this.binImage.setDepth(this.z);
-
-        // Store original position and size for resizing calculations
         this.originalPosition = [this.relativeX, this.relativeY, this.z];
     }
 
@@ -47,19 +35,11 @@ export class Container {
         // Recalculate projected positions on window resize
         const width = this.scene.cameras.main.width;
         const height = this.scene.cameras.main.height;
-
-        // Compute absolute positions
         this.x = this.originalPosition[0] * width;
         this.y = this.originalPosition[1] * height;
-
-        // Update the projected positions
         const projectedX = perspectiveProjection([this.x, this.y, this.z], 0);
         const projectedY = height - (this.y + perspectiveProjection([this.x, this.y, this.z], 2));
-
-        // Update the position of the image
         this.binImage.setPosition(projectedX, projectedY);
-
-        // Update size relative to room size
         const sizeFactor = 1; // Example size factor, adjust as needed
         this.binImage.setDisplaySize(width * CONTAINER_WIDTH, height * CONTAINER_HEIGHT); // Width and height based on room size
     }
