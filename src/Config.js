@@ -25,7 +25,13 @@ export const LANGUAGES = {
         medium: "Stredná",
         hard: "Ťažká",
         withCamera: "S použitím kamery\nrealsense a projektora",
-        withMouse: "S použitím myši"
+        withMouse: "S použitím myši",
+        manual: `
+            Cieľom hry je trafiť odpad zobrazený v bielom kruhu do kontajnera správnej farby.
+            Za správne trafenie kontajnera hráč získa 10 bodov.
+            Za nesprávne trafenie kontajnera hráč stratí 5 bodov.
+            Hra trvá 2 minúty.
+        `
     },
     en: {
         language: "English",
@@ -48,7 +54,13 @@ export const LANGUAGES = {
         medium: "Medium",
         hard: "Hard",
         withCamera: "Using realsense camera\nand projector",
-        withMouse: "Using mouse"
+        withMouse: "Using mouse",
+        manual: `
+            The goal of the game is to throw the waste shown in the white circle into the container of the correct color.
+            For correctly hitting the container, the player earns 10 points.
+            For incorrectly hitting the container, the player loses 5 points.
+            The game lasts 2 minutes.
+        `
     }
 }
 export const textStyle = {

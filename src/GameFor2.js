@@ -360,9 +360,9 @@ export class GameFor2 extends Phaser.Scene{
 
         if (this.language_sk) {
             if (player1Score > player2Score) {
-                return `Vyhral hráč 1 so skórom: ${player1Score}`;
+                return `Vyhral hráč 1 so skóre: ${player1Score}`;
             } else if (player2Score > player1Score) {
-                return `Vyhral hráč 2 so skórom: ${player2Score}`;
+                return `Vyhral hráč 2 so skóre: ${player2Score}`;
             } else {
                 return `Remíza`;
             }
